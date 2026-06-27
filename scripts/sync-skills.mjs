@@ -1,56 +1,104 @@
 #!/usr/bin/env node
-// sync-skills.mjs
-// Copies every .claude/skills/<name>/SKILL.md to all supported agent platforms.
-// Run via: pnpm sync-skills
 
-import { readFileSync, mkdirSync, writeFileSync, readdirSync, statSync } from 'fs'
-import { join, dirname } from 'path'
-import { fileURLToPath } from 'url'
+/**
+ * Generates clone-website command/skill files for all supported AI coding platforms.
+ * Source of truth: .claude/skills/clone-website/SKILL.md
+ *
+ * Usage: node scripts/sync-skills.mjs
+ */
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const ROOT = join(__dirname, '..')
-const SKILLS_DIR = join(ROOT, '.claude', 'skills')
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-function destinations(skillName) {
-  return [
-    `.cursor/commands/${skillName}.md`,
-    `.windsurf/workflows/${skillName}.md`,
-    `.gemini/skills/${skillName}.md`,
-    `.codex/skills/${skillName}.md`,
-    `.amazonq/cli-agents/${skillName}.md`,
-    `.augment/skills/${skillName}.md`,
-    `.continue/skills/${skillName}.md`,
-    `.opencode/skills/${skillName}.md`,
-    `.github/skills/${skillName}/SKILL.md`,
-  ]
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const SOURCE = join(ROOT, '.claude', 'skills', 'clone-website', 'SKILL.md');
+
+let raw;
+try {
+  raw = readFileSync(SOURCE, 'utf8').replace(/\r\n/g, '\n');
+} catch {
+  console.error(`Error: Source skill not found at .claude/skills/clone-website/SKILL.md`);
+  process.exit(1);
 }
 
-function write(destRel, content) {
-  const abs = join(ROOT, destRel)
-  mkdirSync(dirname(abs), { recursive: true })
-  writeFileSync(abs, content, 'utf8')
-  console.log(`  wrote ${destRel}`)
+const match = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+if (!match) {
+  console.error('Error: Could not parse SKILL.md frontmatter');
+  process.exit(1);
 }
 
-console.log('Syncing skill files from .claude/skills/...')
+const body = match[2];
+const shortDesc = 'Reverse-engineer and clone any website as a pixel-perfect Vite + React replica';
 
-const skills = readdirSync(SKILLS_DIR).filter(
-  name => statSync(join(SKILLS_DIR, name)).isDirectory()
-)
-
-for (const skill of skills) {
-  const src = join(SKILLS_DIR, skill, 'SKILL.md')
-  let content
-  try {
-    content = readFileSync(src, 'utf8')
-  } catch {
-    console.warn(`  SKIP ${skill}: SKILL.md not found`)
-    continue
-  }
-  console.log(`\nSkill: ${skill}`)
-  for (const dest of destinations(skill)) {
-    write(dest, content)
-  }
+function write(relPath, content) {
+  const full = join(ROOT, relPath);
+  mkdirSync(dirname(full), { recursive: true });
+  writeFileSync(full, content, 'utf8');
+  console.log(`  \u2713 ${relPath}`);
 }
 
-console.log('\nDone.')
+const HEADER =
+  '<!-- AUTO-GENERATED from .claude/skills/clone-website/SKILL.md \u2014 do not edit directly.\n' +
+  '     Run `node scripts/sync-skills.mjs` to regenerate. -->\n\n';
+
+const noArgs = (text) => text.replace(/\$ARGUMENTS/g, 'the target URL provided by the user');
+
+console.log('Syncing clone-website skill to all platforms...');
+console.log(`  Source: .claude/skills/clone-website/SKILL.md\n`);
+
+// Codex CLI
+write('.codex/skills/clone-website/SKILL.md', raw);
+
+// GitHub Copilot
+write('.github/skills/clone-website/SKILL.md', raw);
+
+// Cursor
+write('.cursor/commands/clone-website.md', HEADER + noArgs(body));
+
+// Windsurf
+write('.windsurf/workflows/clone-website.md', HEADER + noArgs(body));
+
+// Gemini CLI
+const geminiBody = body.replace(/\$ARGUMENTS/g, '{{args}}');
+write(
+  '.gemini/commands/clone-website.toml',
+  `# AUTO-GENERATED from .claude/skills/clone-website/SKILL.md\n` +
+    `# Run \`node scripts/sync-skills.mjs\` to regenerate.\n\n` +
+    `description = "${shortDesc}"\nname = "clone-website"\n\nprompt = '''\n${geminiBody}\n'''\n`
+);
+
+// OpenCode
+write(
+  '.opencode/commands/clone-website.md',
+  `---\ndescription: "${shortDesc}"\n---\n${HEADER}${body}`
+);
+
+// Augment Code
+write(
+  '.augment/commands/clone-website.md',
+  `---\ndescription: "${shortDesc}"\nargument-hint: "<url>"\n---\n${HEADER}${body}`
+);
+
+// Continue
+write(
+  '.continue/commands/clone-website.md',
+  `---\nname: clone-website\ndescription: "${shortDesc}"\ninvokable: true\n---\n${HEADER}${body}`
+);
+
+// Amazon Q
+write(
+  '.amazonq/cli-agents/clone-website.json',
+  JSON.stringify(
+    {
+      name: 'clone-website',
+      description: shortDesc,
+      prompt: noArgs(body),
+      fileContext: ['AGENTS.md', 'docs/research/**'],
+    },
+    null,
+    2
+  ) + '\n'
+);
+
+console.log('\nDone! 9 platform command files generated from source skill.');

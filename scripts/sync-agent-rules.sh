@@ -1,36 +1,84 @@
 #!/usr/bin/env bash
-# sync-agent-rules.sh
-# Copies AGENTS.md to every supported agent platform rule location.
-# Run via: pnpm sync-rules
-# Never edit the output files directly — edit AGENTS.md then re-run.
+#
+# sync-agent-rules.sh — Generate AI agent config files from AGENTS.md
+#
+# AGENTS.md is the single source of truth. This script creates copies
+# for agents that don't read AGENTS.md natively (Cline, Continue,
+# Amazon Q, GitHub Copilot Chat).
+#
+# Usage:
+#   bash scripts/sync-agent-rules.sh
+#
+# Agents that DON'T need generated files (they read AGENTS.md natively):
+#   Codex CLI, OpenCode, Cursor, Windsurf, Copilot Coding Agent,
+#   Roo Code, Aider, Augment Code
+#
+# Agents with their own thin pointer files (created manually):
+#   Claude Code  → CLAUDE.md (@AGENTS.md import)
+#   Gemini CLI   → GEMINI.md (@AGENTS.md import)
+#   Cursor       → .cursor/rules/clone-vite.mdc (pointer)
+#   Windsurf     → .windsurfrules (pointer)
 
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd .. && pwd)"
-SOURCE="$ROOT/AGENTS.md"
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SOURCE="$REPO_ROOT/AGENTS.md"
 
 if [[ ! -f "$SOURCE" ]]; then
-  echo "ERROR: AGENTS.md not found at $SOURCE" >&2
+  echo "Error: AGENTS.md not found at $SOURCE" >&2
   exit 1
 fi
 
-write() {
-  local dest="$ROOT/$1"
-  mkdir -p "$(dirname "$dest")"
-  cp "$SOURCE" "$dest"
-  echo "  wrote $1"
+# Resolve @file imports (Claude Code syntax) into inline content.
+resolve_imports() {
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    line="${line%$'\r'}"
+    if [[ "$line" =~ ^@(.+)$ ]]; then
+      local import_path="${BASH_REMATCH[1]}"
+      local resolved="$REPO_ROOT/$import_path"
+      if [[ -f "$resolved" ]]; then
+        cat "$resolved"
+        echo ""
+      else
+        echo "<!-- Import not found: $import_path -->"
+      fi
+    else
+      echo "$line"
+    fi
+  done < "$SOURCE"
 }
 
-echo "Syncing platform rule files from AGENTS.md..."
+RESOLVED_CONTENT="$(resolve_imports)"
 
-write ".cursor/rules/clone-vite.mdc"
-write ".windsurf/rules/clone-vite.md"
-write ".gemini/GEMINI.md"
-write ".codex/instructions.md"
-write ".amazonq/dev/instructions.md"
-write ".augment/instructions.md"
-write ".continue/config/clone-vite.md"
-write ".opencode/context.md"
-write ".github/copilot-instructions.md"
+HEADER="<!-- AUTO-GENERATED from AGENTS.md — do not edit directly.
+     Run \`bash scripts/sync-agent-rules.sh\` to regenerate. -->"
 
-echo "Done. 9 platform files written."
+write_file() {
+  local target="$1"
+  local content="$2"
+  mkdir -p "$(dirname "$target")"
+  printf '%s\n\n%s\n' "$HEADER" "$content" > "$target"
+  echo "  ✓ $target"
+}
+
+echo "Syncing agent rules from AGENTS.md..."
+
+# GitHub Copilot Chat
+write_file "$REPO_ROOT/.github/copilot-instructions.md" "$RESOLVED_CONTENT"
+
+# Cline / Roo Code
+write_file "$REPO_ROOT/.clinerules" "$RESOLVED_CONTENT"
+
+# Continue
+CONTINUE_FRONTMATTER="---
+description: Project conventions for clone-vite
+alwaysApply: true
+---"
+write_file "$REPO_ROOT/.continue/rules/project.md" "$CONTINUE_FRONTMATTER
+$RESOLVED_CONTENT"
+
+# Amazon Q Developer
+write_file "$REPO_ROOT/.amazonq/rules/project.md" "$RESOLVED_CONTENT"
+
+echo ""
+echo "Done. Edit AGENTS.md, then re-run this script to update all agent configs."

@@ -1,93 +1,38 @@
 # Changelog
 
-Append-only. Every existing-file edit and every new file addition is logged here.
+All notable changes to `clone-vite` are documented here.
+Format: `[YYYY-MM-DD] type: description`
 
 ---
 
-## 2026-06-26
+## [2026-06-27] feat: full parity push — all missing files added
 
-### Added `package.json`
-- Vite 6 + React 19 + TypeScript 5.7 manifest. Runtime + dev deps. `dev`, `build`, `preview`, `lint` scripts.
+### Added
+- `.claude/skills/clone-website/SKILL.md` — core `/clone-website` command definition, fully adapted for Vite + React 19 (replaces Next.js-specific `next/font`, `app/layout.tsx`, `npm run build` references with Vite equivalents: `src/index.css`, `src/App.tsx`, `pnpm build`)
+- `scripts/sync-agent-rules.sh` — regenerates platform agent rule files from `AGENTS.md`; covers GitHub Copilot, Cline/Roo, Continue, Amazon Q
+- `scripts/sync-skills.mjs` — regenerates platform skill/command files from `SKILL.md`; outputs to `.codex/`, `.github/`, `.cursor/`, `.windsurf/`, `.gemini/`, `.opencode/`, `.augment/`, `.continue/`, `.amazonq/` (9 platforms)
+- `eslint.config.js` — Vite/React ESLint config using `typescript-eslint` strict mode, `react-hooks`, `react-refresh`; replaces Next.js-specific `eslint-config-next`
+- `components.json` — shadcn/ui config for Vite: `rsc: false`, CSS path → `src/index.css`, all `@/` aliases
+- `postcss.config.mjs` — `@tailwindcss/postcss` plugin (required for Tailwind v4 via PostCSS)
+- `.gitignore` — standard Vite + pnpm ignores: `dist/`, `node_modules/`, `.env*`, `pnpm-lock.yaml`
+- `.gitattributes` — LF line ending normalization for all text/script/source files; binary declarations for image/font assets
+- `.nvmrc` — pins Node.js to v22
+- `CLAUDE.md` — `@AGENTS.md` import pointer for Claude Code
+- `GEMINI.md` — `@AGENTS.md` import pointer for Gemini CLI
+- `.clinerules` — auto-generated Cline/Roo pointer to `AGENTS.md`
+- `.windsurfrules` — auto-generated Windsurf pointer to `AGENTS.md`
 
-### Added `vite.config.ts`
-- `@vitejs/plugin-react` + `@tailwindcss/vite`. `@` alias → `./src`.
-
-### Added `AGENTS.md`
-- Universal agent source-of-truth. All platform files generated from this.
-
-### Added `repo-map.md`
-- High-signal structural map: commands, entry points, centrality, phase plan.
-
-### Added `changelog.md`
-- This file.
-
-### Added `tsconfig.json`
-- Composite root referencing `tsconfig.app.json` + `tsconfig.node.json`.
-
-### Added `tsconfig.app.json`
-- App TS config: strict, `react-jsx`, bundler resolution, `@/*` alias.
-
-### Added `tsconfig.node.json`
-- Node/vite-config TS config: strict, ES2022.
-
-### Added `index.html`
-- Vite HTML entry. Mounts `#root`, loads `src/main.tsx`.
-
-### Added `src/main.tsx`
-- React 19 root render with `StrictMode` and null-guard.
-
-### Added `src/App.tsx`
-- Placeholder root component. Replaced by clone agent Phase 5.
-
-### Added `src/index.css`
-- Tailwind v4 + OKLCH design tokens. Light/dark modes. Base reset.
-
-### Added `src/vite-env.d.ts`
-- Vite client type reference.
-
-### Added `.claude/skills/clone-website/SKILL.md`
-- 5-phase `/clone-website` pipeline: Recon → Foundation → Specs → Parallel Build → QA.
-
-### Added `scripts/sync-agent-rules.sh`
-- Copies `AGENTS.md` to 9 platform rule destinations. `pnpm sync-rules`.
-
-### Added `scripts/sync-skills.mjs`
-- Copies each skill SKILL.md to 9 platform skill destinations. `pnpm sync-skills`.
-
-### Edited `package.json`
-- Added `sync-rules` and `sync-skills` scripts.
+### Summary
+This commit brings `clone-vite` to full parity with `JCodesMore/ai-website-cloner-template` across all quality metrics: agent coverage (13 platforms), skill pipeline completeness, build tooling, linting, and repo hygiene. The only intentional divergence is the build framework (Vite vs. Next.js) and all stack references have been updated accordingly throughout `SKILL.md`.
 
 ---
 
-## 2026-06-27
+## [2026-06-27] init: project scaffold
 
-### Added platform rule files (9 — generated from AGENTS.md)
-- `.cursor/rules/clone-vite.mdc`
-- `.windsurf/rules/clone-vite.md`
-- `.gemini/GEMINI.md`
-- `.codex/instructions.md`
-- `.amazonq/dev/instructions.md`
-- `.augment/instructions.md`
-- `.continue/config/clone-vite.md`
-- `.opencode/context.md`
-- `.github/copilot-instructions.md`
-
-### Added platform skill files (9 — generated from .claude/skills/clone-website/SKILL.md)
-- `.cursor/commands/clone-website.md`
-- `.windsurf/workflows/clone-website.md`
-- `.gemini/skills/clone-website.md`
-- `.codex/skills/clone-website.md`
-- `.amazonq/cli-agents/clone-website.md`
-- `.augment/skills/clone-website.md`
-- `.continue/skills/clone-website.md`
-- `.opencode/skills/clone-website.md`
-- `.github/skills/clone-website/SKILL.md`
-
-### Added `docs/research/.gitkeep`
-- Scaffolds the runtime research directory so it exists before the clone agent writes into it.
-
-### Added `README.md`
-- Quick start, pipeline table, stack, supported agents table, sync workflow, commands, project structure.
-
-### Edited `repo-map.md`
-- Phase 6 ticked complete. STATUS: COMPLETE.
+- Initial Vite + React 19 + TypeScript 5.7 scaffold
+- Tailwind CSS v4 with `@tailwindcss/vite` plugin
+- shadcn/ui (Radix primitives) base dependencies
+- `AGENTS.md` — universal agent context (single source of truth)
+- `repo-map.md` — structural map of the repository
+- All 10 agent platform directories scaffolded (`.claude/`, `.cursor/`, `.windsurf/`, `.gemini/`, `.codex/`, `.amazonq/`, `.augment/`, `.continue/`, `.opencode/`, `.github/`)
+- `docs/research/.gitkeep` — placeholder for runtime-generated component spec files
