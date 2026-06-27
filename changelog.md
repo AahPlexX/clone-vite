@@ -32,3 +32,24 @@ Append-only. Every existing-file edit and every new file addition is logged here
 
 ### Added `changelog.md`
 - This file. Append-only chronological edit log required by response protocol.
+
+---
+
+### Added `tsconfig.json`
+- Project-level TypeScript config using composite references pattern.
+- References `tsconfig.app.json` (src/) and `tsconfig.node.json` (vite.config.ts).
+
+### Added `tsconfig.app.json`
+- App source TypeScript config: ES2020 target, strict mode, `noEmit`, `react-jsx`,
+  `bundler` module resolution, `@/*` path alias matching `vite.config.ts`.
+
+### Added `tsconfig.node.json`
+- Node/config TypeScript config: ES2022 target, strict mode, covers `vite.config.ts`.
+
+### Added `index.html`
+- Vite HTML entry point. Mounts `#root` div and loads `src/main.tsx` as ES module.
+
+### Added `src/main.tsx`
+- React 19 root render. Creates root from `#root` element, wraps `<App>` in
+  `<StrictMode>`. Throws a clear error if `#root` is missing rather than silently
+  failing with a null render.
