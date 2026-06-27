@@ -42,9 +42,9 @@ pnpm sync-skills  # regenerate platform skill files from .claude/skills/
 
 ## Phase Plan
 
-1. ✅ `package.json`, `vite.config.ts`, `AGENTS.md` — foundation wired
-2. ⬜ `tsconfig.json`, `index.html`, `src/main.tsx`
-3. ⬜ `src/App.tsx`, `src/index.css`, `src/vite-env.d.ts`
+1. ✅ `package.json`, `vite.config.ts`, `AGENTS.md`
+2. ✅ `tsconfig.json`, `index.html`, `src/main.tsx`
+3. ✅ `src/App.tsx`, `src/index.css`, `src/vite-env.d.ts`
 4. ⬜ `.claude/skills/clone-website/SKILL.md`
 5. ⬜ `scripts/sync-agent-rules.sh`, `scripts/sync-skills.mjs`
 6. ⬜ Platform sync outputs + `docs/research/` scaffold + `README.md`
