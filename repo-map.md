@@ -38,7 +38,7 @@ pnpm sync-skills  # regenerate platform skill files from .claude/skills/
 - **Component primitives:** shadcn/ui via `@radix-ui/react-slot` + `cva`
 - **Agent skill commands:** `.claude/skills/clone-website/SKILL.md`
 - **Platform sync scripts:** `scripts/sync-agent-rules.sh`, `scripts/sync-skills.mjs`
-- **Research scaffold:** `docs/research/components/` (populated by clone agent at runtime)
+- **Research scaffold:** `docs/research/` (populated by clone agent at runtime)
 
 ## Phase Plan
 
@@ -47,4 +47,6 @@ pnpm sync-skills  # regenerate platform skill files from .claude/skills/
 3. ✅ `src/App.tsx`, `src/index.css`, `src/vite-env.d.ts`
 4. ✅ `.claude/skills/clone-website/SKILL.md`
 5. ✅ `scripts/sync-agent-rules.sh`, `scripts/sync-skills.mjs`
-6. ⬜ Platform sync outputs + `docs/research/` scaffold + `README.md`
+6. ✅ Platform sync outputs + `docs/research/` scaffold + `README.md`
+
+## STATUS: COMPLETE

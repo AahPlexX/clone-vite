@@ -7,11 +7,10 @@ Append-only. Every existing-file edit and every new file addition is logged here
 ## 2026-06-26
 
 ### Added `package.json`
-- Vite 6 + React 19 + TypeScript 5.7 app manifest with pnpm.
-- Runtime + dev deps declared. `dev`, `build`, `preview`, `lint` scripts.
+- Vite 6 + React 19 + TypeScript 5.7 manifest. Runtime + dev deps. `dev`, `build`, `preview`, `lint` scripts.
 
 ### Added `vite.config.ts`
-- `@vitejs/plugin-react` + `@tailwindcss/vite` plugins. `@` alias → `./src`.
+- `@vitejs/plugin-react` + `@tailwindcss/vite`. `@` alias → `./src`.
 
 ### Added `AGENTS.md`
 - Universal agent source-of-truth. All platform files generated from this.
@@ -23,10 +22,10 @@ Append-only. Every existing-file edit and every new file addition is logged here
 - This file.
 
 ### Added `tsconfig.json`
-- Composite project root referencing `tsconfig.app.json` + `tsconfig.node.json`.
+- Composite root referencing `tsconfig.app.json` + `tsconfig.node.json`.
 
 ### Added `tsconfig.app.json`
-- App source TS config: strict, `react-jsx`, bundler resolution, `@/*` alias.
+- App TS config: strict, `react-jsx`, bundler resolution, `@/*` alias.
 
 ### Added `tsconfig.node.json`
 - Node/vite-config TS config: strict, ES2022.
@@ -35,38 +34,60 @@ Append-only. Every existing-file edit and every new file addition is logged here
 - Vite HTML entry. Mounts `#root`, loads `src/main.tsx`.
 
 ### Added `src/main.tsx`
-- React 19 root render with `StrictMode` and null-guard on `#root`.
+- React 19 root render with `StrictMode` and null-guard.
 
 ### Added `src/App.tsx`
-- Minimal placeholder root component. Replaced by clone agent during Phase 5.
+- Placeholder root component. Replaced by clone agent Phase 5.
 
 ### Added `src/index.css`
-- Tailwind v4 `@import` + OKLCH design token layer. Light/dark modes. Base reset.
-- Rewritten by clone agent recon phase to match the target site's tokens.
+- Tailwind v4 + OKLCH design tokens. Light/dark modes. Base reset.
 
 ### Added `src/vite-env.d.ts`
-- Vite client type reference for `import.meta` and asset imports.
+- Vite client type reference.
 
 ### Added `.claude/skills/clone-website/SKILL.md`
-- Defines the `/clone-website <url>` slash command for Claude Code.
-- Five-phase pipeline: Recon → Foundation → Component Specs → Parallel Build
-  (git worktrees) → Assembly & QA. Includes browser recon script, builder
-  sub-agent instruction template, and completion checklist.
-- This is the functional core of the template; all other platforms receive
-  a copy via `pnpm sync-skills`.
+- 5-phase `/clone-website` pipeline: Recon → Foundation → Specs → Parallel Build → QA.
 
 ### Added `scripts/sync-agent-rules.sh`
-- Copies `AGENTS.md` to all 9 platform rule destinations.
-- Invoked by `pnpm sync-rules`. Creates destination dirs as needed.
+- Copies `AGENTS.md` to 9 platform rule destinations. `pnpm sync-rules`.
 
 ### Added `scripts/sync-skills.mjs`
-- ESM Node script that discovers every `.claude/skills/<name>/SKILL.md` and
-  copies it to all 9 platform skill destinations per skill.
-- Invoked by `pnpm sync-skills`. Warns and skips on missing SKILL.md.
+- Copies each skill SKILL.md to 9 platform skill destinations. `pnpm sync-skills`.
 
 ### Edited `package.json`
-- Added `sync-rules`: `bash scripts/sync-agent-rules.sh`.
-- Added `sync-skills`: `node scripts/sync-skills.mjs`.
+- Added `sync-rules` and `sync-skills` scripts.
+
+---
+
+## 2026-06-27
+
+### Added platform rule files (9 — generated from AGENTS.md)
+- `.cursor/rules/clone-vite.mdc`
+- `.windsurf/rules/clone-vite.md`
+- `.gemini/GEMINI.md`
+- `.codex/instructions.md`
+- `.amazonq/dev/instructions.md`
+- `.augment/instructions.md`
+- `.continue/config/clone-vite.md`
+- `.opencode/context.md`
+- `.github/copilot-instructions.md`
+
+### Added platform skill files (9 — generated from .claude/skills/clone-website/SKILL.md)
+- `.cursor/commands/clone-website.md`
+- `.windsurf/workflows/clone-website.md`
+- `.gemini/skills/clone-website.md`
+- `.codex/skills/clone-website.md`
+- `.amazonq/cli-agents/clone-website.md`
+- `.augment/skills/clone-website.md`
+- `.continue/skills/clone-website.md`
+- `.opencode/skills/clone-website.md`
+- `.github/skills/clone-website/SKILL.md`
+
+### Added `docs/research/.gitkeep`
+- Scaffolds the runtime research directory so it exists before the clone agent writes into it.
+
+### Added `README.md`
+- Quick start, pipeline table, stack, supported agents table, sync workflow, commands, project structure.
 
 ### Edited `repo-map.md`
-- Ticked phases 4 and 5 complete in the phase plan.
+- Phase 6 ticked complete. STATUS: COMPLETE.
