@@ -7,64 +7,66 @@ Append-only. Every existing-file edit and every new file addition is logged here
 ## 2026-06-26
 
 ### Added `package.json`
-- Establishes the project as a Vite 6 + React 19 + TypeScript 5.7 app with pnpm.
-- Declares all runtime deps (`react`, `react-dom`, Radix slot, `cva`, `clsx`,
-  `lucide-react`, `tailwind-merge`, `tailwindcss-animate`) and dev deps
-  (`vite`, `@vitejs/plugin-react`, `@tailwindcss/vite`, `typescript`, `eslint` stack).
-- Defines `dev`, `build`, `preview`, `lint` scripts.
+- Vite 6 + React 19 + TypeScript 5.7 app manifest with pnpm.
+- Runtime + dev deps declared. `dev`, `build`, `preview`, `lint` scripts.
 
 ### Added `vite.config.ts`
-- Registers `@vitejs/plugin-react` and `@tailwindcss/vite` plugins.
-- Configures `@` path alias → `./src` so all internal imports use `@/` prefix.
+- `@vitejs/plugin-react` + `@tailwindcss/vite` plugins. `@` alias → `./src`.
 
 ### Added `AGENTS.md`
-- Universal agent source-of-truth document consumed by all AI coding agent
-  platforms (Claude Code, Cursor, Windsurf, Gemini CLI, Amazon Q, Codex, etc.).
-- Documents project purpose, stack, commands, repo layout, coding standards,
-  clone-phase rules, and platform file sync instructions.
-- Platform-specific files are generated FROM this file via `pnpm sync-rules`.
+- Universal agent source-of-truth. All platform files generated from this.
 
 ### Added `repo-map.md`
-- High-signal structural map: commands, entry points, highest-centrality modules,
-  conditional categories present, and the phase plan.
+- High-signal structural map: commands, entry points, centrality, phase plan.
 
 ### Added `changelog.md`
-- This file. Append-only chronological edit log.
+- This file.
 
 ### Added `tsconfig.json`
-- Project-level TypeScript config using composite references pattern.
-- References `tsconfig.app.json` (src/) and `tsconfig.node.json` (vite.config.ts).
+- Composite project root referencing `tsconfig.app.json` + `tsconfig.node.json`.
 
 ### Added `tsconfig.app.json`
-- App source TypeScript config: ES2020 target, strict mode, `noEmit`, `react-jsx`,
-  `bundler` module resolution, `@/*` path alias matching `vite.config.ts`.
+- App source TS config: strict, `react-jsx`, bundler resolution, `@/*` alias.
 
 ### Added `tsconfig.node.json`
-- Node/config TypeScript config: ES2022 target, strict mode, covers `vite.config.ts`.
+- Node/vite-config TS config: strict, ES2022.
 
 ### Added `index.html`
-- Vite HTML entry point. Mounts `#root` div and loads `src/main.tsx` as ES module.
+- Vite HTML entry. Mounts `#root`, loads `src/main.tsx`.
 
 ### Added `src/main.tsx`
-- React 19 root render. Creates root from `#root` element, wraps `<App>` in
-  `<StrictMode>`. Throws a clear error if `#root` is missing.
+- React 19 root render with `StrictMode` and null-guard on `#root`.
 
 ### Added `src/App.tsx`
-- Minimal placeholder root component. Renders a centered launch instruction so
-  `pnpm dev` boots a real UI immediately. Replaced wholesale by the clone agent.
+- Minimal placeholder root component. Replaced by clone agent during Phase 5.
 
 ### Added `src/index.css`
-- Tailwind v4 `@import` directive + full OKLCH design token layer in `@layer base`.
-- Defines `--background`, `--surface`, `--foreground`, `--primary`, `--muted`,
-  `--accent`, `--destructive`, `--radius`, spacing scale, and fluid type scale.
-- Light mode in `:root`, dark mode in `[data-theme="dark"]` and
-  `@media (prefers-color-scheme: dark) :root:not([data-theme])`.
-- Includes base reset (box-sizing, smoothing, scroll-behavior, reduced-motion).
-- This file is rewritten by the clone agent recon phase to match the target site.
+- Tailwind v4 `@import` + OKLCH design token layer. Light/dark modes. Base reset.
+- Rewritten by clone agent recon phase to match the target site's tokens.
 
 ### Added `src/vite-env.d.ts`
-- Single-line Vite client type reference. Required for `import.meta.env`,
-  `import.meta.hot`, and static asset imports to resolve under TypeScript strict mode.
+- Vite client type reference for `import.meta` and asset imports.
+
+### Added `.claude/skills/clone-website/SKILL.md`
+- Defines the `/clone-website <url>` slash command for Claude Code.
+- Five-phase pipeline: Recon → Foundation → Component Specs → Parallel Build
+  (git worktrees) → Assembly & QA. Includes browser recon script, builder
+  sub-agent instruction template, and completion checklist.
+- This is the functional core of the template; all other platforms receive
+  a copy via `pnpm sync-skills`.
+
+### Added `scripts/sync-agent-rules.sh`
+- Copies `AGENTS.md` to all 9 platform rule destinations.
+- Invoked by `pnpm sync-rules`. Creates destination dirs as needed.
+
+### Added `scripts/sync-skills.mjs`
+- ESM Node script that discovers every `.claude/skills/<name>/SKILL.md` and
+  copies it to all 9 platform skill destinations per skill.
+- Invoked by `pnpm sync-skills`. Warns and skips on missing SKILL.md.
+
+### Edited `package.json`
+- Added `sync-rules`: `bash scripts/sync-agent-rules.sh`.
+- Added `sync-skills`: `node scripts/sync-skills.mjs`.
 
 ### Edited `repo-map.md`
-- Ticked phase 3 complete in the phase plan (src/ files now fully present).
+- Ticked phases 4 and 5 complete in the phase plan.

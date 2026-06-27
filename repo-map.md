@@ -20,17 +20,17 @@ pnpm sync-skills  # regenerate platform skill files from .claude/skills/
 |---|---|
 | `index.html` | Vite HTML entry — loads `src/main.tsx` |
 | `src/main.tsx` | React 19 root render |
-| `src/App.tsx` | Root component; replaced wholesale during clone phase |
-| `src/index.css` | Tailwind v4 + OKLCH design tokens; rewritten by clone recon phase |
+| `src/App.tsx` | Root component; replaced wholesale during clone Phase 5 |
+| `src/index.css` | Tailwind v4 + OKLCH design tokens; rewritten during clone Phase 2 |
 
 ## Highest-Centrality Modules
 
 | Path | Role |
 |---|---|
 | `AGENTS.md` | Universal agent source-of-truth; all platform files generated from it |
-| `.claude/skills/clone-website/SKILL.md` | `/clone-website` slash-command definition |
-| `scripts/sync-agent-rules.sh` | Generates platform rule files from `AGENTS.md` |
-| `scripts/sync-skills.mjs` | Generates platform skill files from `.claude/skills/` |
+| `.claude/skills/clone-website/SKILL.md` | `/clone-website` slash-command — 5-phase pipeline |
+| `scripts/sync-agent-rules.sh` | Copies `AGENTS.md` → 9 platform rule destinations |
+| `scripts/sync-skills.mjs` | Copies each skill SKILL.md → 9 platform skill destinations |
 
 ## Conditional Categories Present
 
@@ -45,6 +45,6 @@ pnpm sync-skills  # regenerate platform skill files from .claude/skills/
 1. ✅ `package.json`, `vite.config.ts`, `AGENTS.md`
 2. ✅ `tsconfig.json`, `index.html`, `src/main.tsx`
 3. ✅ `src/App.tsx`, `src/index.css`, `src/vite-env.d.ts`
-4. ⬜ `.claude/skills/clone-website/SKILL.md`
-5. ⬜ `scripts/sync-agent-rules.sh`, `scripts/sync-skills.mjs`
+4. ✅ `.claude/skills/clone-website/SKILL.md`
+5. ✅ `scripts/sync-agent-rules.sh`, `scripts/sync-skills.mjs`
 6. ⬜ Platform sync outputs + `docs/research/` scaffold + `README.md`
