@@ -12,7 +12,7 @@ Format: `[YYYY-MM-DD] type: description`
 - `scripts/verify-generated.mjs` — compares every manifest-defined generated output with its current canonical rendering and exits non-zero on drift.
 
 ### Changed
-- `scripts/sync-skills.mjs` — replaced hard-coded target paths with manifest-driven rendering for both agent rules and clone-skill adapters. It now exports the render functions consumed by the verifier.
+- `scripts/sync-skills.mjs` — replaced hard-coded target paths with manifest-driven rendering for both agent rules and clone-skill adapters. It now exports the render functions consumed by the verifier and resolves direct script invocation paths before running.
 - `scripts/sync-agent-rules.sh` — reduced to a compatibility entry point that delegates rule rendering to the manifest-driven Node renderer, eliminating duplicated rendering logic.
 - `package.json` — added a Node 22 engine contract aligned with `.nvmrc`; added `typecheck`, `check`, `sync`, and `verify-generated` commands; made `sync-skills` explicitly render only skill targets.
 - `.gitignore` — removed `pnpm-lock.yaml` so a generated dependency lockfile can be committed and used for reproducible installs.
