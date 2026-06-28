@@ -1,106 +1,100 @@
 # clone-vite
 
-An AI-agent launcher template for cloning any public website into a production-grade
-Vite + React + TypeScript codebase. Point an agent at a URL, run one command, and
-receive a pixel-faithful clone with extracted design tokens, downloaded assets, and
-fully typed React components.
+An AI-agent template for rebuilding authorized public websites into a Vite + React
++ TypeScript codebase. It keeps agent instructions and command adapters generated
+from canonical sources so tool-specific copies cannot silently drift.
 
 ## Quick Start
 
 ```bash
-# 1. Use this template (click "Use this template" on GitHub)
-# 2. Clone your copy and install
-git clone https://github.com/<you>/clone-vite
-cd clone-vite
+# 1. Create your copy and install dependencies
 pnpm install
 
-# 3. Start Claude Code with browser access
-claude --chrome
+# 2. Render and verify the agent adapters in your copy
+pnpm sync
+pnpm verify-generated
 
-# 4. Run the clone command
+# 3. Start an agent with authorized browser access, then run
 /clone-website https://target-site.com
 ```
 
-The agent handles everything from there.
+Use this only where you have permission to inspect, reuse, and reproduce the
+target's content and assets.
 
 ## How It Works
 
-The `/clone-website` command triggers a 5-phase pipeline defined in
+The canonical `/clone-website` workflow is defined in
 `.claude/skills/clone-website/SKILL.md`:
 
 | Phase | What happens |
 |---|---|
-| 1. Recon | Screenshot, extract CSS tokens, record interactions, download all assets |
-| 2. Foundation | Rewrite `src/index.css` with OKLCH tokens, wire fonts in `index.html` |
-| 3. Component Specs | Write a detailed spec file per section into `docs/research/components/` |
-| 4. Parallel Build | Git worktree + isolated builder sub-agent per component |
-| 5. Assembly & QA | Compose `src/App.tsx`, `pnpm build`, visual diff at 375/768/1280px |
+| 1. Recon | Screenshot, extract CSS tokens, record interactions, download assets |
+| 2. Foundation | Apply observed tokens and fonts to the Vite application |
+| 3. Component specs | Write an evidence-based specification for each section |
+| 4. Parallel build | Isolate component builders in worktrees |
+| 5. Assembly and QA | Compose `src/App.tsx`, build, compare target and clone |
 
 ## Stack
 
 | Layer | Choice |
 |---|---|
 | Build | Vite 6 |
-| Framework | React 19 + TypeScript 5.7 (strict) |
-| Styling | Tailwind CSS v4 + OKLCH design tokens |
-| Components | shadcn/ui (Radix primitives) |
-| Icons | Lucide React |
+| Framework | React 19 + TypeScript 5.7 |
+| Styling | Tailwind CSS v4 + target-specific tokens |
+| Components | shadcn/ui-compatible primitives |
+| Icons | Lucide React, replaced by extracted SVGs when needed |
 | Package manager | pnpm |
+| Runtime | Node 22 |
 
-## Supported Agents
+## Agent Configuration
 
-All platform files are generated from `AGENTS.md` — never edit them directly.
+| Canonical source | Responsibility |
+|---|---|
+| `AGENTS.md` | Project rules shared by generated agent configurations |
+| `.claude/skills/clone-website/SKILL.md` | Canonical website-cloning workflow |
+| `tooling/agent-targets.json` | Every generated target path and renderer format |
+| `scripts/sync-skills.mjs` | Manifest-driven generator for rules and skills |
+| `scripts/verify-generated.mjs` | Drift detector for generated outputs |
 
-| Platform | Rule file | Skill file |
-|---|---|---|
-| Claude Code | `AGENTS.md` | `.claude/skills/clone-website/SKILL.md` |
-| Cursor | `.cursor/rules/clone-vite.mdc` | `.cursor/commands/clone-website.md` |
-| Windsurf | `.windsurf/rules/clone-vite.md` | `.windsurf/workflows/clone-website.md` |
-| Gemini CLI | `.gemini/GEMINI.md` | `.gemini/skills/clone-website.md` |
-| Codex | `.codex/instructions.md` | `.codex/skills/clone-website.md` |
-| Amazon Q | `.amazonq/dev/instructions.md` | `.amazonq/cli-agents/clone-website.md` |
-| Augment | `.augment/instructions.md` | `.augment/skills/clone-website.md` |
-| Continue | `.continue/config/clone-vite.md` | `.continue/skills/clone-website.md` |
-| OpenCode | `.opencode/context.md` | `.opencode/skills/clone-website.md` |
-| GitHub Copilot | `.github/copilot-instructions.md` | `.github/skills/clone-website/SKILL.md` |
-
-## Keeping Platform Files in Sync
-
-```bash
-# After editing AGENTS.md:
-pnpm sync-rules
-
-# After editing .claude/skills/clone-website/SKILL.md:
-pnpm sync-skills
-```
+Do not edit generated platform files directly. Update a canonical source, then run
+`pnpm sync` and `pnpm verify-generated`.
 
 ## Commands
 
 ```bash
-pnpm dev          # http://localhost:5173
-pnpm build        # tsc -b && vite build
-pnpm preview      # serve dist/ locally
-pnpm lint
-pnpm sync-rules
-pnpm sync-skills
+pnpm dev                 # http://localhost:5173
+pnpm build               # typecheck + Vite production build
+pnpm preview             # serve dist/ locally
+pnpm lint                # ESLint
+pnpm typecheck           # TypeScript project check
+pnpm check               # lint + typecheck + build
+pnpm sync-rules          # render rule files from AGENTS.md
+pnpm sync-skills         # render command/skill files from canonical SKILL.md
+pnpm sync                # render every generated agent file
+pnpm verify-generated    # fail when generated files drift
 ```
 
 ## Project Structure
 
-```
+```text
 clone-vite/
-├── AGENTS.md                        # universal agent source-of-truth
+├── AGENTS.md
+├── repo-map.md
+├── changelog.md
+├── tooling/
+│   └── agent-targets.json
 ├── src/
-│   ├── App.tsx                      # root component (replaced during clone)
-│   ├── index.css                    # Tailwind v4 + OKLCH tokens (rewritten during clone)
-│   ├── main.tsx                     # React 19 entry
+│   ├── App.tsx
+│   ├── index.css
+│   ├── main.tsx
 │   └── vite-env.d.ts
-├── public/                          # static assets (populated during clone)
-├── docs/research/                   # recon output (populated during clone)
-├── .claude/skills/clone-website/    # skill source of truth
+├── public/
+├── docs/research/
+├── .claude/skills/clone-website/SKILL.md
 └── scripts/
     ├── sync-agent-rules.sh
-    └── sync-skills.mjs
+    ├── sync-skills.mjs
+    └── verify-generated.mjs
 ```
 
 ## License
