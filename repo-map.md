@@ -1,52 +1,52 @@
 # repo-map.md
 
-> Maintained by AI agent. Reality wins over this file. Correct here + log in changelog.md when they diverge.
+> Verified against the repository during active work. Reality wins over this map.
 
 ## Commands
 
 ```bash
 pnpm install
-pnpm dev          # http://localhost:5173
-pnpm build        # tsc -b && vite build → dist/
+pnpm dev                 # http://localhost:5173
+pnpm build               # tsc -b && vite build → dist/
 pnpm preview
 pnpm lint
-pnpm sync-rules   # regenerate platform rule files from AGENTS.md
-pnpm sync-skills  # regenerate platform skill files from .claude/skills/
+pnpm typecheck
+pnpm check               # lint + typecheck + build
+pnpm sync                # regenerate all manifest-defined agent files
+pnpm verify-generated    # fail on generated-file drift
 ```
 
 ## Entry Points
 
 | File | Role |
 |---|---|
-| `index.html` | Vite HTML entry — loads `src/main.tsx` |
+| `index.html` | Vite HTML entry that loads `src/main.tsx` |
 | `src/main.tsx` | React 19 root render |
-| `src/App.tsx` | Root component; replaced wholesale during clone Phase 5 |
-| `src/index.css` | Tailwind v4 + OKLCH design tokens; rewritten during clone Phase 2 |
+| `src/App.tsx` | Root component, replaced during clone assembly |
+| `src/index.css` | Target-specific global tokens and styles |
 
 ## Highest-Centrality Modules
 
 | Path | Role |
 |---|---|
-| `AGENTS.md` | Universal agent source-of-truth; all platform files generated from it |
-| `.claude/skills/clone-website/SKILL.md` | `/clone-website` slash-command — 5-phase pipeline |
-| `scripts/sync-agent-rules.sh` | Copies `AGENTS.md` → 9 platform rule destinations |
-| `scripts/sync-skills.mjs` | Copies each skill SKILL.md → 9 platform skill destinations |
+| `AGENTS.md` | Canonical project rules for generated agent configurations |
+| `.claude/skills/clone-website/SKILL.md` | Canonical cloning workflow |
+| `tooling/agent-targets.json` | Canonical generated-file target and format manifest |
+| `scripts/sync-skills.mjs` | Renderer for every manifest-defined rule and skill output |
+| `scripts/verify-generated.mjs` | Confirms generated outputs match canonical sources |
 
-## Conditional Categories Present
+## Present Categories
 
-- **Build pipeline:** Vite 6, `@tailwindcss/vite`, `@vitejs/plugin-react`
-- **Component primitives:** shadcn/ui via `@radix-ui/react-slot` + `cva`
-- **Agent skill commands:** `.claude/skills/clone-website/SKILL.md`
-- **Platform sync scripts:** `scripts/sync-agent-rules.sh`, `scripts/sync-skills.mjs`
-- **Research scaffold:** `docs/research/` (populated by clone agent at runtime)
+- **Build pipeline:** Vite 6, React 19, TypeScript project references, Tailwind v4.
+- **Agent configuration:** canonical rule source, canonical clone skill, manifest-defined generated targets.
+- **Research scaffold:** `docs/research/`, populated during a clone run.
+- **Static assets:** `public/`, populated during a clone run.
 
-## Phase Plan
+## Active Hardening State
 
-1. ✅ `package.json`, `vite.config.ts`, `AGENTS.md`
-2. ✅ `tsconfig.json`, `index.html`, `src/main.tsx`
-3. ✅ `src/App.tsx`, `src/index.css`, `src/vite-env.d.ts`
-4. ✅ `.claude/skills/clone-website/SKILL.md`
-5. ✅ `scripts/sync-agent-rules.sh`, `scripts/sync-skills.mjs`
-6. ✅ Platform sync outputs + `docs/research/` scaffold + `README.md`
-
-## STATUS: COMPLETE
+- Agent configuration is manifest-driven. After editing a canonical source or target
+  manifest, run `pnpm sync` followed by `pnpm verify-generated`.
+- `pnpm-lock.yaml` is intentionally trackable; generate and commit it with the first
+  dependency install performed in a networked development environment.
+- Browser extraction, visual-diff automation, and worktree orchestration are not yet
+  implemented as deterministic repository tooling.
