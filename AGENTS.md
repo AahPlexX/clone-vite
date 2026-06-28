@@ -1,16 +1,16 @@
 # clone-vite — Agent Source of Truth
 
-This file is the single authoritative context document for ALL AI coding agents
-(Claude Code, Cursor, Windsurf, Copilot, Gemini CLI, Amazon Q, Codex, Continue,
-OpenCode, Augment). Platform-specific rule files are auto-generated FROM this file
-by running `pnpm sync-rules`. Never edit the platform files directly.
+`AGENTS.md` is the authoritative project context for supported coding agents. The
+canonical `/clone-website` workflow lives in `.claude/skills/clone-website/SKILL.md`.
+`tooling/agent-targets.json` is the authoritative list of generated platform files.
+Never edit a generated platform file directly.
 
 ---
 
 ## Project Purpose
 
-`clone-vite` is an AI-agent launcher template. A developer points an agent at any
-public URL with the `/clone-website` skill command, and the agent:
+`clone-vite` is an AI-agent launcher template. A developer points an agent at an
+authorized public URL with the `/clone-website` skill command, and the agent:
 
 1. Performs live DOM/CSS reconnaissance on the target.
 2. Extracts design tokens (colors, fonts, spacing, radii) into `src/index.css`.
@@ -29,22 +29,27 @@ public URL with the `/clone-website` skill command, and the agent:
 | Build | Vite 6 | `pnpm dev` / `pnpm build` / `pnpm preview` |
 | Framework | React 19 + TypeScript 5.7 | Strict mode |
 | Styling | Tailwind CSS v4 + OKLCH tokens | `@tailwindcss/vite` plugin |
-| Components | shadcn/ui (Radix primitives) | `@radix-ui/react-slot`, `cva`, `clsx`, `tailwind-merge` |
+| Components | shadcn/ui-compatible primitives | `@radix-ui/react-slot`, `cva`, `clsx`, `tailwind-merge` |
 | Icons | Lucide React | Replace with extracted SVGs during clone phase |
-| Package manager | pnpm | Never npm or yarn |
+| Package manager | pnpm | Lockfile must be committed when generated |
+| Runtime | Node 22 | Defined by `.nvmrc` and `package.json` |
 
 ---
 
 ## Commands
 
 ```bash
-pnpm install        # install deps
-pnpm dev            # start dev server (http://localhost:5173)
-pnpm build          # tsc + vite build → dist/
-pnpm preview        # serve dist/ locally
-pnpm lint           # eslint
-pnpm sync-rules     # regenerate platform rule files from AGENTS.md
-pnpm sync-skills    # regenerate platform skill files from .claude/skills/
+pnpm install             # install dependencies and generate the lockfile when absent
+pnpm dev                 # start dev server (http://localhost:5173)
+pnpm build               # typecheck + Vite production build
+pnpm preview             # serve dist/ locally
+pnpm lint                # ESLint
+pnpm typecheck           # TypeScript project check
+pnpm check               # lint + typecheck + build
+pnpm sync-rules          # render platform rule files from AGENTS.md
+pnpm sync-skills         # render platform skill files from canonical SKILL.md
+pnpm sync                # render every generated agent file
+pnpm verify-generated    # fail when generated files drift from canonical sources
 ```
 
 ---
@@ -53,30 +58,32 @@ pnpm sync-skills    # regenerate platform skill files from .claude/skills/
 
 ```
 clone-vite/
-├── AGENTS.md                         ← THIS FILE — universal agent context
-├── repo-map.md                       ← high-signal structural map (auto-maintained)
+├── AGENTS.md                         ← universal agent context source
+├── repo-map.md                       ← high-signal structural map
 ├── changelog.md                      ← append-only edit log
+├── tooling/
+│   └── agent-targets.json            ← generated-file target manifest
 ├── index.html                        ← Vite entry HTML
 ├── package.json
 ├── vite.config.ts
 ├── tsconfig.json
-├── tsconfig.node.json
 ├── src/
 │   ├── main.tsx                      ← React entry point
-│   ├── App.tsx                       ← Root component (replaced during clone)
-│   ├── index.css                     ← Tailwind + OKLCH design tokens
+│   ├── App.tsx                       ← root component (replaced during clone)
+│   ├── index.css                     ← target design tokens and global styles
 │   └── vite-env.d.ts
-├── public/                           ← Static assets (populated during clone)
+├── public/                           ← static assets populated during clone
 ├── docs/
 │   └── research/
-│       └── components/               ← Per-component spec files (written by agent)
+│       └── components/               ← per-component spec files
 ├── .claude/
 │   └── skills/
 │       └── clone-website/
-│           └── SKILL.md              ← /clone-website command definition
+│           └── SKILL.md              ← canonical clone skill source
 └── scripts/
-    ├── sync-agent-rules.sh           ← Generates platform rule files from AGENTS.md
-    └── sync-skills.mjs               ← Generates platform skill files from .claude/skills/
+    ├── sync-agent-rules.sh           ← compatibility rule-sync entry point
+    ├── sync-skills.mjs               ← manifest-driven renderer
+    └── verify-generated.mjs          ← generated-file drift verifier
 ```
 
 ---
@@ -94,35 +101,26 @@ clone-vite/
 
 ---
 
-## Clone Phase Rules (agent must follow during `/clone-website`)
+## Clone Phase Rules
 
 1. **Recon first, build second.** Never write a component until its spec file exists
    in `docs/research/components/`.
 2. **No personal aesthetic changes during emulation.** Match the target 1:1. Custom
    work happens only after the clone phase is complete and the user requests it.
-3. **Parallel builders are isolated.** Each builder sub-agent receives ONE component
-   spec and builds only that component. No cross-component reasoning.
-4. **Merge orchestrator resolves conflicts.** The orchestrator (not the builders)
-   owns the final assembly and visual-diff QA.
-5. **Asset fidelity.** All images, fonts, and icons from the target are downloaded
-   to `public/` before any component is built.
+3. **Parallel builders are isolated.** Each builder sub-agent receives one component
+   spec and builds only that component.
+4. **Merge orchestrator resolves conflicts.** The orchestrator owns final assembly
+   and visual-diff QA.
+5. **Asset fidelity.** Download target images, fonts, and icons before component work.
 
 ---
 
-## Platform File Sync
+## Generated Agent Files
 
-Do NOT edit these files directly — they are generated:
-
-```
-.cursor/rules/clone-vite.mdc
-.windsurf/rules/clone-vite.md
-.gemini/GEMINI.md
-.codex/instructions.md
-.amazonq/dev/instructions.md
-.augment/instructions.md
-.continue/config/clone-vite.md
-.opencode/context.md
-.github/copilot-instructions.md
-```
-
-Run `pnpm sync-rules` to regenerate all of them after editing `AGENTS.md`.
+- Edit `AGENTS.md` for project rules.
+- Edit `.claude/skills/clone-website/SKILL.md` for the clone workflow.
+- Edit `tooling/agent-targets.json` to add, remove, or relocate a generated target.
+- Run `pnpm sync` after any canonical-source or target-manifest change.
+- Run `pnpm verify-generated` before committing generated agent-file changes.
+- `CLAUDE.md`, `GEMINI.md`, and `.windsurfrules` remain explicit pointer files and
+  are not rendered by the manifest.
