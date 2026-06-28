@@ -1,0 +1,28 @@
+{
+  "ruleSource": "AGENTS.md",
+  "skillSource": ".claude/skills/clone-website/SKILL.md",
+  "rules": [
+    { "platform": "Cursor", "path": ".cursor/rules/clone-vite.mdc", "format": "cursor-rule" },
+    { "platform": "Windsurf", "path": ".windsurf/rules/clone-vite.md", "format": "markdown" },
+    { "platform": "Gemini CLI", "path": ".gemini/GEMINI.md", "format": "markdown" },
+    { "platform": "Codex", "path": ".codex/instructions.md", "format": "markdown" },
+    { "platform": "Amazon Q", "path": ".amazonq/dev/instructions.md", "format": "markdown" },
+    { "platform": "Augment", "path": ".augment/instructions.md", "format": "markdown" },
+    { "platform": "Continue", "path": ".continue/config/clone-vite.md", "format": "continue-rule" },
+    { "platform": "OpenCode", "path": ".opencode/context.md", "format": "markdown" },
+    { "platform": "GitHub Copilot", "path": ".github/copilot-instructions.md", "format": "markdown" },
+    { "platform": "Cline/Roo Code", "path": ".clinerules", "format": "markdown" }
+  ],
+  "skills": [
+    { "platform": "Claude Code", "path": ".claude/skills/clone-website/SKILL.md", "format": "source" },
+    { "platform": "Codex", "path": ".codex/skills/clone-website.md", "format": "raw-skill" },
+    { "platform": "GitHub Copilot", "path": ".github/skills/clone-website/SKILL.md", "format": "raw-skill" },
+    { "platform": "Cursor", "path": ".cursor/commands/clone-website.md", "format": "plain-command" },
+    { "platform": "Windsurf", "path": ".windsurf/workflows/clone-website.md", "format": "plain-command" },
+    { "platform": "Gemini CLI", "path": ".gemini/skills/clone-website.md", "format": "plain-command" },
+    { "platform": "OpenCode", "path": ".opencode/skills/clone-website.md", "format": "command-frontmatter" },
+    { "platform": "Augment", "path": ".augment/skills/clone-website.md", "format": "augment-command" },
+    { "platform": "Continue", "path": ".continue/skills/clone-website.md", "format": "continue-command" },
+    { "platform": "Amazon Q", "path": ".amazonq/cli-agents/clone-website.md", "format": "plain-command" }
+  ]
+}
