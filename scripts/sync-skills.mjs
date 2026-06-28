@@ -11,7 +11,7 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -70,7 +70,7 @@ function readSkill() {
     throw new Error(`${manifest.skillSource} must begin with YAML frontmatter.`);
   }
 
-  return { raw, body: match[2], source: manifest.skillSource };
+  return { raw, body: match[2] };
 }
 
 function renderRule(target) {
@@ -168,7 +168,7 @@ function main() {
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     main();
   } catch (error) {
