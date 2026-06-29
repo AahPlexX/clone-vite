@@ -14,6 +14,7 @@ pnpm typecheck
 pnpm check               # lint + typecheck + build
 pnpm sync                # regenerate all manifest-defined agent files
 pnpm verify-generated    # fail on generated-file drift
+pnpm validate-artifacts  # validate docs/research/**/run.json and listed component specs
 ```
 
 ## Entry Points
@@ -29,8 +30,11 @@ pnpm verify-generated    # fail on generated-file drift
 
 | Path | Role |
 |---|---|
-| `AGENTS.md` | Canonical project rules for generated agent configurations |
-| `.claude/skills/clone-website/SKILL.md` | Canonical cloning workflow |
+| `AGENTS.md` | Canonical project rules for generated agent configurations and research evidence |
+| `.claude/skills/clone-website/SKILL.md` | Canonical human-readable cloning workflow |
+| `contracts/run.schema.json` | Required structure for one authorized target research run |
+| `contracts/component-spec.schema.json` | Required structure for one builder component contract |
+| `scripts/validate-artifacts.mjs` | Dependency-free cross-validator for run and component evidence |
 | `tooling/agent-targets.json` | Canonical generated-file target and format manifest |
 | `scripts/sync-skills.mjs` | Renderer for every manifest-defined rule and skill output |
 | `scripts/verify-generated.mjs` | Confirms generated outputs match canonical sources |
@@ -43,13 +47,15 @@ pnpm verify-generated    # fail on generated-file drift
 - **Build pipeline:** Vite 6, React 19, TypeScript project references, Tailwind v4.
 - **Shared UI foundation:** semantic Tailwind tokens, `cn()`, native Button, local SVG exports.
 - **Agent configuration:** canonical rule source, canonical clone skill, manifest-defined generated targets.
-- **Research scaffold:** `docs/research/`, populated during a clone run.
+- **Research evidence:** per-target `run.json`, component JSON specs, companion Markdown briefs, and cross-validation.
 - **Static assets:** `public/`, populated during a clone run.
 
 ## Active Hardening State
 
 - Agent configuration is manifest-driven. After editing a canonical source or target
   manifest, run `pnpm sync` followed by `pnpm verify-generated`.
+- Research evidence is validated per target with `pnpm validate-artifacts --
+  docs/research/<hostname>` before builder dispatch.
 - `pnpm-lock.yaml` is intentionally trackable; generate and commit it with the first
   dependency install performed in a networked development environment.
 - Browser extraction, visual-diff automation, and worktree orchestration are not yet
