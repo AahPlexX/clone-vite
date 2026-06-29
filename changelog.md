@@ -78,3 +78,26 @@ This commit brings `clone-vite` to full parity with `JCodesMore/ai-website-clone
 - `repo-map.md` — structural map of the repository
 - All 10 agent platform directories scaffolded (`.claude/`, `.cursor/`, `.windsurf/`, `.gemini/`, `.codex/`, `.amazonq/`, `.augment/`, `.continue/`, `.opencode/`, `.github/`)
 - `docs/research/.gitkeep` — placeholder for runtime-generated component spec files
+
+---
+
+## [2026-06-28] feat: add validated research evidence contracts
+
+### Added
+- `contracts/run.schema.json` — defines the required target authorization, responsive viewports, screenshots, topology, asset inventory, and component-spec registry for one clone run.
+- `contracts/component-spec.schema.json` — defines the required source section, target component file, evidence screenshots, exact styles, states, assets, text, and responsive behavior for one builder contract.
+- `scripts/validate-artifacts.mjs` — dependency-free validator that checks both schemas and cross-validates component references against each run’s topology, screenshots, and assets.
+
+### Changed
+- `package.json` — added `pnpm validate-artifacts` for validating research evidence without adding a schema dependency.
+- `AGENTS.md` — requires dedicated per-target evidence directories and a passing artifact-validation command before builder dispatch; also lists the validator in the repository map.
+- `README.md` — documents the run/component evidence files, validator command, and contract responsibilities.
+- `repo-map.md` — records the research-contract modules and validation gate as high-centrality facts.
+- `scripts/validate-artifacts.mjs` — hardened semantic-validation guards so malformed JSON produces validation errors instead of a runtime exception.
+- `changelog.md` — appended this chronological record of every existing-file edit in this response.
+
+### Compatibility decision
+- `.claude/skills/clone-website/SKILL.md` remains unchanged. Its Markdown research briefs continue to provide narrative builder context; the JSON contracts supplement that workflow with machine-checkable evidence.
+
+### Validation limits
+- Schema and validator logic were source-reviewed for required fields, duplicate detection, reference integrity, and malformed-artifact guards. No executable checkout was available to run `pnpm validate-artifacts`, install dependencies, or build the project in this repository operation.
