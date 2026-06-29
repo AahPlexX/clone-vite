@@ -51,6 +51,8 @@ pnpm sync-rules          # render platform rule files from AGENTS.md
 pnpm sync-skills         # render platform skill files from canonical SKILL.md
 pnpm sync                # render every generated agent file
 pnpm verify-generated    # fail when generated files drift from canonical sources
+pnpm extract-site -- --url=https://target.example --authorized
+                          # capture baseline evidence through local Chrome DevTools
 pnpm validate-artifacts -- docs/research/<hostname>
                           # validate one target's run.json and component JSON specs
 ```
@@ -71,6 +73,12 @@ docs/research/<hostname>/
     └── <component>.spec.md  # detailed human-readable builder brief
 ```
 
+- `scripts/extract-site.mjs` opens a disposable tab through a **local** Chrome
+  DevTools endpoint, captures full-page desktop/tablet/mobile screenshots, discovers
+  initial topology and public asset URLs, writes the baseline evidence, validates it,
+  then closes its temporary tab.
+- Start Chrome with remote debugging enabled on the local endpoint before running the
+  extractor. It refuses non-local DevTools endpoints and requires `--authorized`.
 - `contracts/run.schema.json` defines `run.json`.
 - `contracts/component-spec.schema.json` defines each component JSON specification.
 - `run.json` must identify an authorized target, all desktop/tablet/mobile viewports,
@@ -80,6 +88,8 @@ docs/research/<hostname>/
   behavior.
 - Markdown artifacts remain required for nuanced builder context. JSON exists to block
   missing, orphaned, duplicate, or untraceable evidence before implementation.
+- The extractor’s interaction classifications are only structural. Complete the
+  scroll, click, hover, timed, and responsive state sweep before builder dispatch.
 - Run `pnpm validate-artifacts -- docs/research/<hostname>` before dispatching a
   builder and after changing the run or any listed component JSON file.
 
@@ -110,6 +120,7 @@ clone-vite/
 ├── docs/research/                    ← per-target evidence directories
 ├── .claude/skills/clone-website/SKILL.md
 └── scripts/
+    ├── extract-site.mjs              ← Chrome DevTools baseline extractor
     ├── sync-agent-rules.sh           ← compatibility rule-sync entry point
     ├── sync-skills.mjs               ← manifest-driven renderer
     ├── validate-artifacts.mjs        ← research evidence cross-validator
@@ -133,17 +144,20 @@ clone-vite/
 
 ## Clone Phase Rules
 
-1. **Recon first, build second.** Never write a component until its Markdown brief
+1. **Capture the baseline first.** Use `pnpm extract-site -- --url=<target> --authorized`
+   when a local Chrome DevTools endpoint is available. It complements, but does not
+   replace, the canonical browser interaction sweep.
+2. **Recon first, build second.** Never write a component until its Markdown brief
    and JSON component contract exist under the target research directory.
-2. **Validate evidence before dispatch.** A builder may not start until
+3. **Validate evidence before dispatch.** A builder may not start until
    `pnpm validate-artifacts -- docs/research/<hostname>` passes.
-3. **No personal aesthetic changes during emulation.** Match the target 1:1. Custom
+4. **No personal aesthetic changes during emulation.** Match the target 1:1. Custom
    work happens only after the clone phase is complete and the user requests it.
-4. **Parallel builders are isolated.** Each builder sub-agent receives one component
+5. **Parallel builders are isolated.** Each builder sub-agent receives one component
    spec and builds only that component.
-5. **Merge orchestrator resolves conflicts.** The orchestrator owns final assembly
+6. **Merge orchestrator resolves conflicts.** The orchestrator owns final assembly
    and visual-diff QA.
-6. **Asset fidelity.** Download target images, fonts, and icons before component work.
+7. **Asset fidelity.** Download target images, fonts, and icons before component work.
 
 ---
 
