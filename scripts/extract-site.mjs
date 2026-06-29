@@ -241,6 +241,10 @@ async function evaluate(client, expression, awaitPromise = false) {
     throw new Error(`Page evaluation failed: ${response.exceptionDetails.text ?? 'Unknown page error.'}`)
   }
 
+  if (response.result.type === 'undefined') {
+    return undefined
+  }
+
   if (!('value' in response.result)) {
     throw new Error('Page evaluation did not return serializable data.')
   }
