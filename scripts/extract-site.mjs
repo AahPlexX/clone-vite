@@ -244,8 +244,7 @@ async function waitForDocument(client) {
 }
 
 async function createDedicatedTarget(endpoint, targetUrl) {
-  const createUrl = new URL('/json/new', endpoint)
-  createUrl.searchParams.set('url', targetUrl)
+  const createUrl = new URL(`/json/new?${encodeURIComponent(targetUrl)}`, endpoint)
   const response = await fetch(createUrl, { method: 'PUT' })
 
   if (!response.ok) {
