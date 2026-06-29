@@ -1,8 +1,9 @@
 # clone-vite
 
-An AI-agent template for rebuilding authorized public websites into a Vite + React
-+ TypeScript codebase. It keeps agent instructions, command adapters, and research
-evidence tied to canonical sources so they cannot silently drift.
+`clone-vite` is a portable, evidence-driven system for rebuilding websites you are
+authorized to reproduce as Vite + React + TypeScript applications. It collects what
+the source site actually does, records that evidence, builds from it, and verifies the
+result instead of depending on an agent's memory or guesses.
 
 ## Quick Start
 
@@ -28,11 +29,26 @@ The canonical `/clone-website` workflow is defined in
 
 | Phase | What happens |
 |---|---|
-| 1. Recon | Screenshot, extract CSS tokens, record interactions, download assets |
+| 1. Recon | Capture screenshots, inspect DOM/CSS, record interactions, inventory assets |
 | 2. Foundation | Apply observed tokens and fonts to the Vite application |
 | 3. Evidence and specs | Write Markdown briefs plus validated JSON evidence per section |
 | 4. Parallel build | Isolate component builders in worktrees after evidence validation |
 | 5. Assembly and QA | Compose `src/App.tsx`, build, compare target and clone |
+
+## Deterministic Baseline Capture
+
+When Chrome is running with a **local** DevTools endpoint, capture the baseline before
+writing component specifications:
+
+```bash
+pnpm extract-site -- --url=https://target.example --authorized
+```
+
+The extractor opens a disposable browser tab, captures desktop/tablet/mobile full-page
+screenshots, records a structural topology and discovered public asset URLs, validates
+the new run, and then closes its temporary tab. It refuses non-local DevTools endpoints
+and requires the explicit `--authorized` confirmation. It is baseline collection only;
+interaction and responsive behavior still require the later state sweep.
 
 ## Research Evidence
 
@@ -79,6 +95,7 @@ pnpm validate-artifacts -- docs/research/<hostname>
 | `.claude/skills/clone-website/SKILL.md` | Canonical website-cloning workflow |
 | `tooling/agent-targets.json` | Every generated target path and renderer format |
 | `contracts/*.schema.json` | Machine-checkable research evidence contracts |
+| `scripts/extract-site.mjs` | Local Chrome DevTools baseline evidence capture |
 | `scripts/sync-skills.mjs` | Manifest-driven generator for rules and skills |
 | `scripts/verify-generated.mjs` | Drift detector for generated outputs |
 | `scripts/validate-artifacts.mjs` | Research run and component-spec validator |
@@ -99,6 +116,7 @@ pnpm sync-rules          # render rule files from AGENTS.md
 pnpm sync-skills         # render command/skill files from canonical SKILL.md
 pnpm sync                # render every generated agent file
 pnpm verify-generated    # fail when generated files drift
+pnpm extract-site        # capture an authorized target through local Chrome DevTools
 pnpm validate-artifacts  # validate research artifacts under docs/research/
 ```
 
@@ -125,6 +143,7 @@ clone-vite/
 ├── docs/research/
 ├── .claude/skills/clone-website/SKILL.md
 └── scripts/
+    ├── extract-site.mjs
     ├── sync-agent-rules.sh
     ├── sync-skills.mjs
     ├── validate-artifacts.mjs
