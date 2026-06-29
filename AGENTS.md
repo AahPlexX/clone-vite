@@ -112,6 +112,7 @@ clone-vite/
 └── scripts/
     ├── sync-agent-rules.sh           ← compatibility rule-sync entry point
     ├── sync-skills.mjs               ← manifest-driven renderer
+    ├── validate-artifacts.mjs        ← research evidence cross-validator
     └── verify-generated.mjs          ← generated-file drift verifier
 ```
 
