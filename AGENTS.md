@@ -15,9 +15,10 @@ authorized public URL with the `/clone-website` skill command, and the agent:
 1. Performs live DOM/CSS reconnaissance on the target.
 2. Extracts design tokens (colors, fonts, spacing, radii) into `src/index.css`.
 3. Downloads public assets into `public/`.
-4. Writes per-component spec files into `docs/research/components/`.
-5. Dispatches parallel builder sub-agents (one per component, each in its own git
-   worktree branch).
+4. Writes human-readable Markdown research plus validated JSON run and component
+   evidence under `docs/research/<hostname>/`.
+5. Dispatches parallel builder sub-agents only after their component evidence passes
+   `pnpm validate-artifacts`.
 6. Merges all worktrees, assembles the final page, and runs a visual-diff QA pass.
 
 ---
@@ -29,8 +30,8 @@ authorized public URL with the `/clone-website` skill command, and the agent:
 | Build | Vite 6 | `pnpm dev` / `pnpm build` / `pnpm preview` |
 | Framework | React 19 + TypeScript 5.7 | Strict mode |
 | Styling | Tailwind CSS v4 + OKLCH tokens | `@tailwindcss/vite` plugin |
-| Components | shadcn/ui-compatible primitives | `@radix-ui/react-slot`, `cva`, `clsx`, `tailwind-merge` |
-| Icons | Lucide React | Replace with extracted SVGs during clone phase |
+| Components | shadcn/ui-compatible primitives | `cva`, `clsx`, `tailwind-merge` |
+| Icons | Local SVG exports | Replace the starter icon with extracted SVGs during clone phase |
 | Package manager | pnpm | Lockfile must be committed when generated |
 | Runtime | Node 22 | Defined by `.nvmrc` and `package.json` |
 
@@ -50,17 +51,50 @@ pnpm sync-rules          # render platform rule files from AGENTS.md
 pnpm sync-skills         # render platform skill files from canonical SKILL.md
 pnpm sync                # render every generated agent file
 pnpm verify-generated    # fail when generated files drift from canonical sources
+pnpm validate-artifacts -- docs/research/<hostname>
+                          # validate one target's run.json and component JSON specs
 ```
+
+---
+
+## Research Evidence Contract
+
+For every authorized target, create a dedicated directory:
+
+```text
+docs/research/<hostname>/
+├── run.json                 # machine-validated target, viewports, topology, assets
+├── BEHAVIORS.md             # human-readable interaction notes
+├── PAGE_TOPOLOGY.md         # human-readable assembly plan
+└── components/
+    ├── <component>.json     # machine-validated builder contract
+    └── <component>.spec.md  # detailed human-readable builder brief
+```
+
+- `contracts/run.schema.json` defines `run.json`.
+- `contracts/component-spec.schema.json` defines each component JSON specification.
+- `run.json` must identify an authorized target, all desktop/tablet/mobile viewports,
+  screenshots, section topology, known assets, and every component JSON path.
+- Component JSON must identify its source section, target React file, screenshots,
+  exact computed styles, captured states, local assets, verbatim text, and responsive
+  behavior.
+- Markdown artifacts remain required for nuanced builder context. JSON exists to block
+  missing, orphaned, duplicate, or untraceable evidence before implementation.
+- Run `pnpm validate-artifacts -- docs/research/<hostname>` before dispatching a
+  builder and after changing the run or any listed component JSON file.
 
 ---
 
 ## Repository Layout
 
-```
+```text
 clone-vite/
 ├── AGENTS.md                         ← universal agent context source
 ├── repo-map.md                       ← high-signal structural map
 ├── changelog.md                      ← append-only edit log
+├── contracts/
+│   ├── run.schema.json               ← clone research run contract
+│   └── component-spec.schema.json    ← component builder contract
 ├── tooling/
 │   └── agent-targets.json            ← generated-file target manifest
 ├── index.html                        ← Vite entry HTML
@@ -73,13 +107,8 @@ clone-vite/
 │   ├── index.css                     ← target design tokens and global styles
 │   └── vite-env.d.ts
 ├── public/                           ← static assets populated during clone
-├── docs/
-│   └── research/
-│       └── components/               ← per-component spec files
-├── .claude/
-│   └── skills/
-│       └── clone-website/
-│           └── SKILL.md              ← canonical clone skill source
+├── docs/research/                    ← per-target evidence directories
+├── .claude/skills/clone-website/SKILL.md
 └── scripts/
     ├── sync-agent-rules.sh           ← compatibility rule-sync entry point
     ├── sync-skills.mjs               ← manifest-driven renderer
@@ -103,15 +132,17 @@ clone-vite/
 
 ## Clone Phase Rules
 
-1. **Recon first, build second.** Never write a component until its spec file exists
-   in `docs/research/components/`.
-2. **No personal aesthetic changes during emulation.** Match the target 1:1. Custom
+1. **Recon first, build second.** Never write a component until its Markdown brief
+   and JSON component contract exist under the target research directory.
+2. **Validate evidence before dispatch.** A builder may not start until
+   `pnpm validate-artifacts -- docs/research/<hostname>` passes.
+3. **No personal aesthetic changes during emulation.** Match the target 1:1. Custom
    work happens only after the clone phase is complete and the user requests it.
-3. **Parallel builders are isolated.** Each builder sub-agent receives one component
+4. **Parallel builders are isolated.** Each builder sub-agent receives one component
    spec and builds only that component.
-4. **Merge orchestrator resolves conflicts.** The orchestrator owns final assembly
+5. **Merge orchestrator resolves conflicts.** The orchestrator owns final assembly
    and visual-diff QA.
-5. **Asset fidelity.** Download target images, fonts, and icons before component work.
+6. **Asset fidelity.** Download target images, fonts, and icons before component work.
 
 ---
 
