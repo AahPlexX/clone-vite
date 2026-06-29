@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { CloneWebsiteIcon } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 
 const cloneCommand = '/clone-website <url>'
@@ -22,6 +23,7 @@ export default function App() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-6 text-foreground">
       <div className="space-y-4 text-center">
+        <CloneWebsiteIcon aria-hidden="true" className="mx-auto size-8 text-primary" />
         <h1 className="text-2xl font-semibold">clone-vite</h1>
         <p className="text-sm text-muted-foreground">
           Run <code className="rounded bg-muted px-1.5 py-0.5 font-mono">{cloneCommand}</code> to begin.
