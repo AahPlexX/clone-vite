@@ -8,12 +8,13 @@
  */
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
-import { basename, join, relative, resolve } from 'node:path'
+import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const ROOT = join(fileURLToPath(new URL('..', import.meta.url)))
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const DEFAULT_RESEARCH_DIRECTORY = join(ROOT, 'docs', 'research')
 const RUN_SCHEMA_PATH = join(ROOT, 'contracts', 'run.schema.json')
+const COMPONENT_SCHEMA_PATH = join(ROOT, 'contracts', 'component-spec.schema.json')
 
 function isPlainObject(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -61,6 +62,10 @@ function validateValue(value, schema, location, errors) {
     if (!isPlainObject(value)) {
       errors.push(`${location}: must be an object`)
       return
+    }
+
+    if (typeof schema.minProperties === 'number' && Object.keys(value).length < schema.minProperties) {
+      errors.push(`${location}: must contain at least ${schema.minProperties} property/properties`)
     }
 
     const properties = schema.properties ?? {}
@@ -215,6 +220,59 @@ function validateRunSemantics(run, location, errors) {
   }
 }
 
+function validateComponentSemantics(component, run, location, errors) {
+  const topologyIds = new Set(run.topology.map((section) => section.id))
+  const screenshotPaths = new Set(run.screenshots.map((screenshot) => screenshot.path))
+  const assetPaths = new Set(run.assets.map((asset) => asset.localPath))
+
+  if (!topologyIds.has(component.sourceSectionId)) {
+    errors.push(`${location}.sourceSectionId: does not exist in the run topology`)
+  }
+
+  const usedScreenshotPaths = new Set()
+  for (const screenshotPath of component.screenshotPaths) {
+    if (usedScreenshotPaths.has(screenshotPath)) {
+      errors.push(`${location}.screenshotPaths: paths must be unique`)
+    }
+
+    if (!screenshotPaths.has(screenshotPath)) {
+      errors.push(`${location}.screenshotPaths: ${screenshotPath} is not registered by the run`)
+    }
+
+    usedScreenshotPaths.add(screenshotPath)
+  }
+
+  const usedAssetPaths = new Set()
+  for (const asset of component.assets) {
+    if (usedAssetPaths.has(asset.localPath)) {
+      errors.push(`${location}.assets: paths must be unique`)
+    }
+
+    if (!assetPaths.has(asset.localPath)) {
+      errors.push(`${location}.assets: ${asset.localPath} is not registered by the run`)
+    }
+
+    usedAssetPaths.add(asset.localPath)
+  }
+
+  const stateNames = new Set()
+  for (const state of component.states) {
+    if (stateNames.has(state.name)) {
+      errors.push(`${location}.states: state names must be unique`)
+    }
+
+    stateNames.add(state.name)
+  }
+
+  if (component.interactionModel === 'static' && component.states.length > 0) {
+    errors.push(`${location}.states: static components must not declare interactive states`)
+  }
+
+  if (component.interactionModel !== 'static' && component.states.length === 0) {
+    errors.push(`${location}.states: interactive components require at least one captured state`)
+  }
+}
+
 function collectRunFiles(inputPath) {
   if (!existsSync(inputPath)) {
     throw new Error(`Artifact path does not exist: ${relative(ROOT, inputPath) || inputPath}`)
@@ -244,10 +302,54 @@ function collectRunFiles(inputPath) {
   return runFiles
 }
 
+function validateComponentArtifacts(run, runPath, componentSchema, errors) {
+  const runDirectory = dirname(runPath)
+  const listedPaths = new Set(run.componentSpecs)
+  const componentsDirectory = join(runDirectory, 'components')
+  let count = 0
+
+  if (existsSync(componentsDirectory) && statSync(componentsDirectory).isDirectory()) {
+    for (const entry of readdirSync(componentsDirectory, { withFileTypes: true })) {
+      if (entry.isFile() && entry.name.endsWith('.json') && !listedPaths.has(`components/${entry.name}`)) {
+        errors.push(`${relative(ROOT, join(componentsDirectory, entry.name))}: is not listed in run.json`)
+      }
+    }
+  }
+
+  for (const specPath of run.componentSpecs) {
+    const absoluteSpecPath = join(runDirectory, specPath)
+    const location = relative(ROOT, absoluteSpecPath)
+
+    if (!existsSync(absoluteSpecPath)) {
+      errors.push(`${location}: is listed by run.json but missing`)
+      continue
+    }
+
+    const component = readJson(absoluteSpecPath)
+    validateValue(component, componentSchema, location, errors)
+
+    if (
+      isPlainObject(component) &&
+      typeof component.sourceSectionId === 'string' &&
+      typeof component.interactionModel === 'string' &&
+      Array.isArray(component.screenshotPaths) &&
+      Array.isArray(component.assets) &&
+      Array.isArray(component.states)
+    ) {
+      validateComponentSemantics(component, run, location, errors)
+    }
+
+    count += 1
+  }
+
+  return count
+}
+
 function main() {
   const inputArgument = process.argv[2]
   const inputPath = inputArgument ? resolve(ROOT, inputArgument) : DEFAULT_RESEARCH_DIRECTORY
   const runSchema = readJson(RUN_SCHEMA_PATH)
+  const componentSchema = readJson(COMPONENT_SCHEMA_PATH)
   const runFiles = collectRunFiles(inputPath)
 
   if (runFiles.length === 0) {
@@ -255,13 +357,22 @@ function main() {
   }
 
   const errors = []
+  let componentCount = 0
   for (const runPath of runFiles) {
     const run = readJson(runPath)
     const location = relative(ROOT, runPath)
     validateValue(run, runSchema, location, errors)
 
-    if (isPlainObject(run) && Array.isArray(run.viewports) && Array.isArray(run.screenshots) && Array.isArray(run.topology) && Array.isArray(run.assets) && Array.isArray(run.componentSpecs)) {
+    if (
+      isPlainObject(run) &&
+      Array.isArray(run.viewports) &&
+      Array.isArray(run.screenshots) &&
+      Array.isArray(run.topology) &&
+      Array.isArray(run.assets) &&
+      Array.isArray(run.componentSpecs)
+    ) {
       validateRunSemantics(run, location, errors)
+      componentCount += validateComponentArtifacts(run, runPath, componentSchema, errors)
     }
   }
 
@@ -272,7 +383,7 @@ function main() {
     return
   }
 
-  console.log(`Validated ${runFiles.length} clone research run artifact(s).`)
+  console.log(`Validated ${runFiles.length} clone research run artifact(s) and ${componentCount} component specification(s).`)
 }
 
 try {
