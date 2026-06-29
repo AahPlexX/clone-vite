@@ -16,7 +16,8 @@
     "sync-rules": "bash scripts/sync-agent-rules.sh",
     "sync-skills": "node scripts/sync-skills.mjs --kind=skill",
     "sync": "pnpm run sync-rules && pnpm run sync-skills",
-    "verify-generated": "node scripts/verify-generated.mjs"
+    "verify-generated": "node scripts/verify-generated.mjs",
+    "validate-artifacts": "node scripts/validate-artifacts.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.0",
