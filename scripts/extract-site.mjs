@@ -201,6 +201,27 @@ function localAssetPath(hostname, sourceUrl, kind) {
   return `public/clones/${hostname}/assets/${hash}${assetExtension(sourceUrl, kind)}`
 }
 
+function normalizeTopology(topology) {
+  const identifiers = new Map()
+  const normalized = topology.map((section, order) => {
+    const baseId = section.id || `section-${order + 1}`
+    const occurrence = identifiers.get(baseId) ?? 0
+    identifiers.set(baseId, occurrence + 1)
+
+    return {
+      ...section,
+      id: occurrence === 0 ? baseId : `${baseId}-${occurrence + 1}`,
+      order,
+    }
+  })
+
+  if (normalized.length === 0) {
+    return [{ id: 'body', order: 0, selector: 'body', interactionModel: 'static' }]
+  }
+
+  return normalized
+}
+
 function writeJson(filePath, value) {
   writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, 'utf8')
 }
@@ -391,7 +412,7 @@ async function collectPageEvidence(client) {
 
 function writeTopologyMarkdown(filePath, targetUrl, topology) {
   const rows = topology.map((section) => `| ${section.order} | ${section.id} | \`${section.selector}\` | ${section.interactionModel} |`).join('\n')
-  const content = `# Page Topology\n\n- **Target:** ${targetUrl}\n- **Capture:** deterministic Chrome DevTools baseline\n\n| Order | Section | Selector | Initial interaction classification |\n|---:|---|---|---|\n${rows || '| 0 | body | `body` | static |'}\n\nInitial classifications are structural only. Run state exploration before builder dispatch to confirm all interactions.\n`
+  const content = `# Page Topology\n\n- **Target:** ${targetUrl}\n- **Capture:** deterministic Chrome DevTools baseline\n\n| Order | Section | Selector | Initial interaction classification |\n|---:|---|---|---|\n${rows}\n\nInitial classifications are structural only. Run state exploration before builder dispatch to confirm all interactions.\n`
   writeFileSync(filePath, content, 'utf8')
 }
 
@@ -432,6 +453,7 @@ async function main() {
     const researchDirectory = join(ROOT, 'docs', 'research', hostname)
     const referencesDirectory = join(ROOT, 'docs', 'design-references', hostname)
     const runPath = join(researchDirectory, 'run.json')
+    const topology = normalizeTopology(evidence.topology)
 
     if (existsSync(runPath) && !options.force) {
       throw new Error(`${relative(ROOT, runPath)} already exists. Pass --force to replace this target's baseline evidence.`)
@@ -463,11 +485,11 @@ async function main() {
       status: 'recon-complete',
       viewports: VIEWPORTS,
       screenshots,
-      topology: evidence.topology,
+      topology,
       assets,
       componentSpecs: [],
     })
-    writeTopologyMarkdown(join(researchDirectory, 'PAGE_TOPOLOGY.md'), finalUrl.href, evidence.topology)
+    writeTopologyMarkdown(join(researchDirectory, 'PAGE_TOPOLOGY.md'), finalUrl.href, topology)
     writeBehaviorMarkdown(join(researchDirectory, 'BEHAVIORS.md'), finalUrl.href)
     validateArtifacts(researchDirectory)
 
