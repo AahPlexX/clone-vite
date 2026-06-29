@@ -17,7 +17,8 @@
     "sync-skills": "node scripts/sync-skills.mjs --kind=skill",
     "sync": "pnpm run sync-rules && pnpm run sync-skills",
     "verify-generated": "node scripts/verify-generated.mjs",
-    "validate-artifacts": "node scripts/validate-artifacts.mjs"
+    "validate-artifacts": "node scripts/validate-artifacts.mjs",
+    "extract-site": "node scripts/extract-site.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.0",
