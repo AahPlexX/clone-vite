@@ -1,8 +1,8 @@
 # clone-vite
 
 An AI-agent template for rebuilding authorized public websites into a Vite + React
-+ TypeScript codebase. It keeps agent instructions and command adapters generated
-from canonical sources so tool-specific copies cannot silently drift.
++ TypeScript codebase. It keeps agent instructions, command adapters, and research
+evidence tied to canonical sources so they cannot silently drift.
 
 ## Quick Start
 
@@ -30,9 +30,34 @@ The canonical `/clone-website` workflow is defined in
 |---|---|
 | 1. Recon | Screenshot, extract CSS tokens, record interactions, download assets |
 | 2. Foundation | Apply observed tokens and fonts to the Vite application |
-| 3. Component specs | Write an evidence-based specification for each section |
-| 4. Parallel build | Isolate component builders in worktrees |
+| 3. Evidence and specs | Write Markdown briefs plus validated JSON evidence per section |
+| 4. Parallel build | Isolate component builders in worktrees after evidence validation |
 | 5. Assembly and QA | Compose `src/App.tsx`, build, compare target and clone |
+
+## Research Evidence
+
+Each target gets an isolated research directory:
+
+```text
+docs/research/<hostname>/
+├── run.json
+├── BEHAVIORS.md
+├── PAGE_TOPOLOGY.md
+└── components/
+    ├── <component>.json
+    └── <component>.spec.md
+```
+
+`run.json` captures authorized-target metadata, viewports, screenshots, page
+topology, discovered assets, and component-spec paths. Each component JSON captures
+its source section, target file, exact styles, states, assets, text, and responsive
+behavior. The companion Markdown files remain the detailed builder brief.
+
+Validate the evidence before dispatching builders:
+
+```bash
+pnpm validate-artifacts -- docs/research/<hostname>
+```
 
 ## Stack
 
@@ -41,8 +66,8 @@ The canonical `/clone-website` workflow is defined in
 | Build | Vite 6 |
 | Framework | React 19 + TypeScript 5.7 |
 | Styling | Tailwind CSS v4 + target-specific tokens |
-| Components | shadcn/ui-compatible primitives |
-| Icons | Lucide React, replaced by extracted SVGs when needed |
+| Components | Native React elements plus small reusable primitives |
+| Icons | Local SVG exports, replaced with extracted target SVGs when needed |
 | Package manager | pnpm |
 | Runtime | Node 22 |
 
@@ -53,8 +78,10 @@ The canonical `/clone-website` workflow is defined in
 | `AGENTS.md` | Project rules shared by generated agent configurations |
 | `.claude/skills/clone-website/SKILL.md` | Canonical website-cloning workflow |
 | `tooling/agent-targets.json` | Every generated target path and renderer format |
+| `contracts/*.schema.json` | Machine-checkable research evidence contracts |
 | `scripts/sync-skills.mjs` | Manifest-driven generator for rules and skills |
 | `scripts/verify-generated.mjs` | Drift detector for generated outputs |
+| `scripts/validate-artifacts.mjs` | Research run and component-spec validator |
 
 Do not edit generated platform files directly. Update a canonical source, then run
 `pnpm sync` and `pnpm verify-generated`.
@@ -72,6 +99,7 @@ pnpm sync-rules          # render rule files from AGENTS.md
 pnpm sync-skills         # render command/skill files from canonical SKILL.md
 pnpm sync                # render every generated agent file
 pnpm verify-generated    # fail when generated files drift
+pnpm validate-artifacts  # validate research artifacts under docs/research/
 ```
 
 ## Project Structure
@@ -81,11 +109,16 @@ clone-vite/
 ├── AGENTS.md
 ├── repo-map.md
 ├── changelog.md
+├── contracts/
+│   ├── run.schema.json
+│   └── component-spec.schema.json
 ├── tooling/
 │   └── agent-targets.json
 ├── src/
 │   ├── App.tsx
+│   ├── components/
 │   ├── index.css
+│   ├── lib/
 │   ├── main.tsx
 │   └── vite-env.d.ts
 ├── public/
@@ -94,6 +127,7 @@ clone-vite/
 └── scripts/
     ├── sync-agent-rules.sh
     ├── sync-skills.mjs
+    ├── validate-artifacts.mjs
     └── verify-generated.mjs
 ```
 
