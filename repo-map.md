@@ -22,8 +22,8 @@ pnpm verify-generated    # fail on generated-file drift
 |---|---|
 | `index.html` | Vite HTML entry that loads `src/main.tsx` |
 | `src/main.tsx` | React 19 root render |
-| `src/App.tsx` | Root component, replaced during clone assembly |
-| `src/index.css` | Target-specific global tokens and styles |
+| `src/App.tsx` | Starter command helper; replaced during clone assembly |
+| `src/index.css` | Neutral global baseline and Tailwind semantic token mappings |
 
 ## Highest-Centrality Modules
 
@@ -34,10 +34,14 @@ pnpm verify-generated    # fail on generated-file drift
 | `tooling/agent-targets.json` | Canonical generated-file target and format manifest |
 | `scripts/sync-skills.mjs` | Renderer for every manifest-defined rule and skill output |
 | `scripts/verify-generated.mjs` | Confirms generated outputs match canonical sources |
+| `src/lib/utils.ts` | Shared class-name composition utility used by UI primitives |
+| `src/components/ui/button.tsx` | Native reusable Button baseline |
+| `src/components/icons.tsx` | Local SVG export location for extracted icons |
 
 ## Present Categories
 
 - **Build pipeline:** Vite 6, React 19, TypeScript project references, Tailwind v4.
+- **Shared UI foundation:** semantic Tailwind tokens, `cn()`, native Button, local SVG exports.
 - **Agent configuration:** canonical rule source, canonical clone skill, manifest-defined generated targets.
 - **Research scaffold:** `docs/research/`, populated during a clone run.
 - **Static assets:** `public/`, populated during a clone run.
