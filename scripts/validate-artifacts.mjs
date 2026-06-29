@@ -20,6 +20,14 @@ function isPlainObject(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+function isArrayOfObjects(value) {
+  return Array.isArray(value) && value.every(isPlainObject)
+}
+
+function isArrayOfStrings(value) {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string')
+}
+
 function readJson(filePath) {
   try {
     return JSON.parse(readFileSync(filePath, 'utf8'))
@@ -332,9 +340,9 @@ function validateComponentArtifacts(run, runPath, componentSchema, errors) {
       isPlainObject(component) &&
       typeof component.sourceSectionId === 'string' &&
       typeof component.interactionModel === 'string' &&
-      Array.isArray(component.screenshotPaths) &&
-      Array.isArray(component.assets) &&
-      Array.isArray(component.states)
+      isArrayOfStrings(component.screenshotPaths) &&
+      isArrayOfObjects(component.assets) &&
+      isArrayOfObjects(component.states)
     ) {
       validateComponentSemantics(component, run, location, errors)
     }
@@ -365,11 +373,11 @@ function main() {
 
     if (
       isPlainObject(run) &&
-      Array.isArray(run.viewports) &&
-      Array.isArray(run.screenshots) &&
-      Array.isArray(run.topology) &&
-      Array.isArray(run.assets) &&
-      Array.isArray(run.componentSpecs)
+      isArrayOfObjects(run.viewports) &&
+      isArrayOfObjects(run.screenshots) &&
+      isArrayOfObjects(run.topology) &&
+      isArrayOfObjects(run.assets) &&
+      isArrayOfStrings(run.componentSpecs)
     ) {
       validateRunSemantics(run, location, errors)
       componentCount += validateComponentArtifacts(run, runPath, componentSchema, errors)
