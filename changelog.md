@@ -5,6 +5,25 @@ Format: `[YYYY-MM-DD] type: description`
 
 ---
 
+## [2026-06-28] feat: establish minimal Vite UI foundation
+
+### Added
+- `src/lib/utils.ts` — added the `cn()` helper required by the existing `components.json` alias contract. It combines conditional classes and resolves conflicting Tailwind utilities.
+- `src/components/ui/button.tsx` — added a native, typed Button primitive with the small variant and size surface needed by the starter application and future clone components.
+- `src/components/icons.tsx` — added the local SVG export contract required by the clone workflow, with one starter icon used by the application.
+
+### Changed
+- `src/components/ui/button.tsx` — kept the newly added primitive native rather than polymorphic because no current clone component requires child-slot behavior; this avoids unnecessary baseline complexity.
+- `src/index.css` — replaced the opinionated starter palette, automatic dark mode, smooth scrolling, type scale, and paragraph width defaults with a neutral reset plus Tailwind v4 semantic token mappings required by the Button and starter application.
+- `src/App.tsx` — now uses the shared Button and local icon module. Added a functional clipboard helper for the displayed clone command and an accessible unavailable-clipboard message.
+- `repo-map.md` — added the shared UI foundation and corrected entry-point roles.
+- `changelog.md` — appended this chronological record of every existing-file edit in this response.
+
+### Validation limits
+- The repository integration was statically checked against the configured aliases and installed dependency declarations. No local package installation or build execution was available in this repository operation.
+
+---
+
 ## [2026-06-28] fix: establish verifiable agent configuration baseline
 
 ### Added
