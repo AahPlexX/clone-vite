@@ -5,6 +5,87 @@ Format: `[YYYY-MM-DD] type: description`
 
 ---
 
+## [2026-07-08] feat(wave-1): product wording, path contract, schema hardening, validator fixtures, CI
+
+### Changed — product wording (P0 item 1)
+- `README.md` — opening description updated to the authoritative product statement:
+  "Reverse-engineer websites as Vite + React + TypeScript apps using an evidence-driven
+  workflow and AI agents." Removed old phrasing that described the tool as a "portable
+  evidence-driven system" without naming the output (Vite + React + TypeScript apps).
+- `AGENTS.md` — added explicit `## Product Statement` block at the top with the same
+  corrected wording. All generated agent files that sync from this source will
+  inherit the corrected statement after the next `pnpm sync`.
+- `repo-map.md` — added `## Product Statement` section with the corrected wording.
+
+### Changed — file ownership contract (P0 item 2)
+- `README.md` — added "Canonical vs. generated files" table classifying every file
+  kind as canonical, generated, or runtime artifact. This makes the ownership split
+  explicit before any new generated targets are added.
+- `AGENTS.md` — added `## File Ownership Contract` table with the same three-tier
+  classification.
+
+### Changed — path contract unification (P0 items 3 & 4)
+**Critical fix:** `contracts/run.schema.json` and `contracts/component-spec.schema.json`
+both encoded the screenshot path prefix `docs/design-references/` which contradicted
+the documented research directory `docs/research/<hostname>/`. This caused a schema
+validation false-pass for any extractor writing to the documented path.
+- `contracts/run.schema.json` — `screenshots[].path` regex updated from
+  `^docs/design-references/` to `^docs/research/[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?/screenshots/`.
+  This encodes the hostname segment in the validated path, making it deterministic.
+- `contracts/component-spec.schema.json` — `screenshotPaths[]` items regex updated
+  by the same fix.
+- `repo-map.md` — added `## Path Conventions (deterministic)` table documenting the
+  canonical root for every artifact type so scripts and agents have a single reference.
+- `AGENTS.md` — added explicit "Screenshot path convention" note under the Research
+  Evidence Contract section, stating `docs/research/<hostname>/screenshots/` is
+  the only valid prefix.
+- `README.md` — updated research evidence prose to state that all artifacts including
+  screenshots live under `docs/research/<hostname>/`.
+
+### Changed — schema hardening (P0 item 5)
+- `contracts/run.schema.json` — added two optional fields to `topology[]` items:
+  - `stateCapture` (enum: pending | complete | not-applicable): records whether a
+    dedicated interaction/state sweep has been completed for this section beyond the
+    structural baseline, closing the gap between baseline extraction and builder dispatch.
+  - `interactionNotes` (string, minLength 1): free-text field for scroll thresholds,
+    trigger mechanisms, and transition values captured during the state sweep.
+- `contracts/component-spec.schema.json` — added two optional fields:
+  - `stateCapture` (enum: pending | complete | not-applicable): mirrors the topology
+    field at the component level so builders can confirm sweep completeness.
+  - `responsiveBreakpoints` (array of integers): records pixel widths at which the
+    component layout changes, closing the gap between the SKILL.md responsive sweep
+    requirement and the schema contract.
+
+### Added — validator fixtures (P0 item 6)
+- `contracts/fixtures/run.valid.json` — a complete, passing `run.json` fixture with
+  two topology sections (scroll-driven nav with stateCapture + interactionNotes,
+  static hero), two screenshots at the now-correct path prefix, one asset, and two
+  component spec references. Used to verify the validator accepts a correct artifact.
+- `contracts/fixtures/run.invalid.json` — an intentionally broken `run.json` fixture
+  that violates six distinct schema rules (missing schemaVersion, authorized:false,
+  insufficient viewports, stale path prefix, unknown interactionModel, uppercase
+  component slug). Each violation is documented inline as `_errors` so the fixture
+  doubles as a regression guard for each error path in `validate-artifacts.mjs`.
+
+### Added — CI pipeline (P0 item 8)
+- `.github/workflows/ci.yml` — GitHub Actions workflow that runs on every push and
+  pull request targeting `main`. Steps: checkout → Node 22 setup → pnpm setup with
+  store caching → `pnpm install --frozen-lockfile` → `pnpm check` (lint + typecheck +
+  build) → `pnpm verify-generated`. Cache key is keyed to `pnpm-lock.yaml` hash.
+  CI was introduced after schema and fixture contracts are settled (per sequencing
+  rule: do not lock CI on unstable expectations).
+
+### Changed — repository map
+- `repo-map.md` — added `contracts/fixtures/` entries to highest-centrality modules
+  table; added Path Conventions table; updated Active Hardening State to reflect
+  unified path contract, fixture addition, and CI pipeline.
+- `AGENTS.md` — repository layout tree updated to include `contracts/fixtures/` and
+  `.github/workflows/ci.yml`.
+- `README.md` — project structure tree updated to include `contracts/fixtures/` and
+  `.github/workflows/ci.yml`; Agent Configuration table updated to document fixtures.
+
+---
+
 ## [2026-06-28] feat: establish minimal Vite UI foundation
 
 ### Added
@@ -86,7 +167,7 @@ This commit brings `clone-vite` to full parity with `JCodesMore/ai-website-clone
 ### Added
 - `contracts/run.schema.json` — defines the required target authorization, responsive viewports, screenshots, topology, asset inventory, and component-spec registry for one clone run.
 - `contracts/component-spec.schema.json` — defines the required source section, target component file, evidence screenshots, exact styles, states, assets, text, and responsive behavior for one builder contract.
-- `scripts/validate-artifacts.mjs` — dependency-free validator that checks both schemas and cross-validates component references against each run’s topology, screenshots, and assets.
+- `scripts/validate-artifacts.mjs` — dependency-free validator that checks both schemas and cross-validates component references against each run's topology, screenshots, and assets.
 
 ### Changed
 - `package.json` — added `pnpm validate-artifacts` for validating research evidence without adding a schema dependency.

@@ -2,6 +2,11 @@
 
 > Verified against the repository during active work. Reality wins over this map.
 
+## Product Statement
+
+Reverse-engineer websites as Vite + React + TypeScript apps using an evidence-driven
+workflow and AI agents.
+
 ## Commands
 
 ```bash
@@ -30,10 +35,12 @@ pnpm validate-artifacts  # validate docs/research/**/run.json and listed compone
 
 | Path | Role |
 |---|---|
-| `AGENTS.md` | Canonical project rules for generated agent configurations and research evidence |
+| `AGENTS.md` | Canonical project rules and file-ownership contract |
 | `.claude/skills/clone-website/SKILL.md` | Canonical human-readable cloning workflow |
 | `contracts/run.schema.json` | Required structure for one authorized target research run |
 | `contracts/component-spec.schema.json` | Required structure for one builder component contract |
+| `contracts/fixtures/run.valid.json` | Passing run.json fixture for validator testing |
+| `contracts/fixtures/run.invalid.json` | Failing run.json fixture for validator error-path testing |
 | `scripts/validate-artifacts.mjs` | Dependency-free cross-validator for run and component evidence |
 | `tooling/agent-targets.json` | Canonical generated-file target and format manifest |
 | `scripts/sync-skills.mjs` | Renderer for every manifest-defined rule and skill output |
@@ -42,6 +49,17 @@ pnpm validate-artifacts  # validate docs/research/**/run.json and listed compone
 | `src/components/ui/button.tsx` | Native reusable Button baseline |
 | `src/components/icons.tsx` | Local SVG export location for extracted icons |
 
+## Path Conventions (deterministic)
+
+| Artifact | Root path |
+|---|---|
+| Screenshots (all viewports) | `docs/research/<hostname>/screenshots/` |
+| Run evidence | `docs/research/<hostname>/run.json` |
+| Component specs (JSON + Markdown) | `docs/research/<hostname>/components/` |
+| Downloaded assets | `public/` |
+| Canonical schemas | `contracts/` |
+| Validator fixtures | `contracts/fixtures/` |
+
 ## Present Categories
 
 - **Build pipeline:** Vite 6, React 19, TypeScript project references, Tailwind v4.
@@ -49,6 +67,7 @@ pnpm validate-artifacts  # validate docs/research/**/run.json and listed compone
 - **Agent configuration:** canonical rule source, canonical clone skill, manifest-defined generated targets.
 - **Research evidence:** per-target `run.json`, component JSON specs, companion Markdown briefs, and cross-validation.
 - **Static assets:** `public/`, populated during a clone run.
+- **CI:** `.github/workflows/ci.yml` — install + check + verify-generated on push/PR to main.
 
 ## Active Hardening State
 
@@ -56,6 +75,11 @@ pnpm validate-artifacts  # validate docs/research/**/run.json and listed compone
   manifest, run `pnpm sync` followed by `pnpm verify-generated`.
 - Research evidence is validated per target with `pnpm validate-artifacts --
   docs/research/<hostname>` before builder dispatch.
+- Screenshot path convention is now unified: all paths use
+  `docs/research/<hostname>/screenshots/` in both schemas and SKILL.md.
+- `contracts/fixtures/` provides valid and invalid run.json examples for testing
+  the validator without a real extraction run.
+- CI pipeline enforces install + check + verify-generated on every push and PR.
 - `pnpm-lock.yaml` is intentionally trackable; generate and commit it with the first
   dependency install performed in a networked development environment.
 - Browser extraction, visual-diff automation, and worktree orchestration are not yet

@@ -32,12 +32,22 @@
       "minItems": 1,
       "items": {
         "type": "string",
-        "pattern": "^docs/design-references/[A-Za-z0-9._/-]+\\.(png|webp|jpg|jpeg)$"
+        "pattern": "^docs/research/[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?/screenshots/[A-Za-z0-9._/-]+\\.(png|webp|jpg|jpeg)$"
       }
     },
     "interactionModel": {
       "type": "string",
       "enum": ["static", "click-driven", "scroll-driven", "time-driven", "mixed"]
+    },
+    "stateCapture": {
+      "description": "Whether all non-default states have been captured for this component.",
+      "type": "string",
+      "enum": ["pending", "complete", "not-applicable"]
+    },
+    "responsiveBreakpoints": {
+      "description": "Pixel widths at which the component layout changes, discovered during responsive sweep.",
+      "type": "array",
+      "items": { "type": "integer", "minimum": 1 }
     },
     "dom": {
       "type": "object",

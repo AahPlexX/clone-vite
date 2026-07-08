@@ -1,9 +1,9 @@
 # clone-vite
 
-`clone-vite` is a portable, evidence-driven system for rebuilding websites you are
-authorized to reproduce as Vite + React + TypeScript applications. It collects what
-the source site actually does, records that evidence, builds from it, and verifies the
-result instead of depending on an agent's memory or guesses.
+`clone-vite` is a portable, evidence-driven system for **reverse-engineering websites
+as Vite + React + TypeScript apps using an evidence-driven workflow and AI agents**.
+It collects what the source site actually does, records that evidence, builds from it,
+and verifies the result instead of depending on an agent's memory or guesses.
 
 ## Quick Start
 
@@ -52,7 +52,8 @@ interaction and responsive behavior still require the later state sweep.
 
 ## Research Evidence
 
-Each target gets an isolated research directory:
+Each target gets an isolated research directory. All artifacts — including screenshots
+— live under this single root:
 
 ```text
 docs/research/<hostname>/
@@ -63,6 +64,14 @@ docs/research/<hostname>/
     ├── <component>.json
     └── <component>.spec.md
 ```
+
+### Canonical vs. generated files
+
+| Kind | Examples | Rule |
+|---|---|---|
+| **Canonical** | `AGENTS.md`, `.claude/skills/clone-website/SKILL.md`, `tooling/agent-targets.json`, `contracts/*.schema.json`, all scripts | Edit directly; never overwrite with sync |
+| **Generated** | All files rendered by `pnpm sync` into agent platform directories | Never edit directly; change the canonical source then re-sync |
+| **Runtime artifacts** | `docs/research/<hostname>/` trees, `public/` asset downloads | Created by extraction runs; not committed unless deliberately included |
 
 `run.json` captures authorized-target metadata, viewports, screenshots, page
 topology, discovered assets, and component-spec paths. Each component JSON captures
@@ -95,6 +104,7 @@ pnpm validate-artifacts -- docs/research/<hostname>
 | `.claude/skills/clone-website/SKILL.md` | Canonical website-cloning workflow |
 | `tooling/agent-targets.json` | Every generated target path and renderer format |
 | `contracts/*.schema.json` | Machine-checkable research evidence contracts |
+| `contracts/fixtures/` | Valid and invalid example artifacts for validator testing |
 | `scripts/extract-site.mjs` | Local Chrome DevTools baseline evidence capture |
 | `scripts/sync-skills.mjs` | Manifest-driven generator for rules and skills |
 | `scripts/verify-generated.mjs` | Drift detector for generated outputs |
@@ -129,19 +139,27 @@ clone-vite/
 ├── changelog.md
 ├── contracts/
 │   ├── run.schema.json
-│   └── component-spec.schema.json
+│   ├── component-spec.schema.json
+│   └── fixtures/
+│       ├── run.valid.json
+│       └── run.invalid.json
 ├── tooling/
 │   └── agent-targets.json
 ├── src/
 │   ├── App.tsx
 │   ├── components/
+│   │   ├── ui/
+│   │   │   └── button.tsx
+│   │   └── icons.tsx
 │   ├── index.css
 │   ├── lib/
+│   │   └── utils.ts
 │   ├── main.tsx
 │   └── vite-env.d.ts
 ├── public/
 ├── docs/research/
 ├── .claude/skills/clone-website/SKILL.md
+├── .github/workflows/ci.yml
 └── scripts/
     ├── extract-site.mjs
     ├── sync-agent-rules.sh

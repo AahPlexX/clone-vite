@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "1.0",
+  "target": {
+    "url": "https://example.com",
+    "hostname": "example.com",
+    "authorized": true
+  },
+  "capturedAt": "2026-07-08T14:00:00Z",
+  "status": "recon-complete",
+  "viewports": [
+    { "name": "desktop", "width": 1440, "height": 900 },
+    { "name": "tablet",  "width": 768,  "height": 1024 },
+    { "name": "mobile",  "width": 390,  "height": 844 }
+  ],
+  "screenshots": [
+    {
+      "viewport": "desktop",
+      "path": "docs/research/example.com/screenshots/desktop-full.png",
+      "fullPage": true
+    },
+    {
+      "viewport": "mobile",
+      "path": "docs/research/example.com/screenshots/mobile-full.png",
+      "fullPage": true
+    }
+  ],
+  "topology": [
+    {
+      "id": "nav",
+      "order": 0,
+      "selector": "header",
+      "interactionModel": "scroll-driven",
+      "stateCapture": "complete",
+      "interactionNotes": "Header gains box-shadow and reduces height after scrolling past 60px. Transition: height 0.3s ease, box-shadow 0.3s ease."
+    },
+    {
+      "id": "hero",
+      "order": 1,
+      "selector": "section.hero",
+      "interactionModel": "static",
+      "stateCapture": "not-applicable"
+    }
+  ],
+  "assets": [
+    {
+      "sourceUrl": "https://example.com/logo.svg",
+      "kind": "svg",
+      "localPath": "public/images/logo.svg"
+    }
+  ],
+  "componentSpecs": [
+    "components/nav.json",
+    "components/hero.json"
+  ]
+}

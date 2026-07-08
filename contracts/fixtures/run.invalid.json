@@ -1,0 +1,46 @@
+{
+  "_comment": "INVALID FIXTURE — intentionally broken to exercise validate-artifacts.mjs error paths.",
+  "_errors": [
+    "Missing required field: schemaVersion",
+    "target.authorized is false (must be true)",
+    "viewports has only 2 items (minimum is 3)",
+    "screenshots[0].path uses the old docs/design-references/ prefix (must be docs/research/<hostname>/screenshots/)",
+    "topology[0].interactionModel is an unknown value",
+    "componentSpecs[0] uses an uppercase character in the slug (must be lowercase kebab-case)"
+  ],
+  "target": {
+    "url": "https://example.com",
+    "hostname": "example.com",
+    "authorized": false
+  },
+  "capturedAt": "2026-07-08T14:00:00Z",
+  "status": "recon-complete",
+  "viewports": [
+    { "name": "desktop", "width": 1440, "height": 900 },
+    { "name": "mobile",  "width": 390,  "height": 844 }
+  ],
+  "screenshots": [
+    {
+      "viewport": "desktop",
+      "path": "docs/design-references/example.com/desktop-full.png",
+      "fullPage": true
+    },
+    {
+      "viewport": "mobile",
+      "path": "docs/design-references/example.com/mobile-full.png",
+      "fullPage": true
+    }
+  ],
+  "topology": [
+    {
+      "id": "nav",
+      "order": 0,
+      "selector": "header",
+      "interactionModel": "gesture-driven"
+    }
+  ],
+  "assets": [],
+  "componentSpecs": [
+    "components/NavBar.json"
+  ]
+}

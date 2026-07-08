@@ -63,7 +63,7 @@
           "viewport": { "type": "string", "enum": ["desktop", "tablet", "mobile"] },
           "path": {
             "type": "string",
-            "pattern": "^docs/design-references/[A-Za-z0-9._/-]+\\.(png|webp|jpg|jpeg)$"
+            "pattern": "^docs/research/[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?/screenshots/[A-Za-z0-9._/-]+\\.(png|webp|jpg|jpeg)$"
           },
           "fullPage": { "type": "boolean" }
         }
@@ -83,6 +83,16 @@
           "interactionModel": {
             "type": "string",
             "enum": ["static", "click-driven", "scroll-driven", "time-driven", "mixed"]
+          },
+          "stateCapture": {
+            "description": "Whether a dedicated state sweep has been completed for this section beyond the structural baseline.",
+            "type": "string",
+            "enum": ["pending", "complete", "not-applicable"]
+          },
+          "interactionNotes": {
+            "description": "Free-text notes from the interaction sweep — scroll thresholds, trigger mechanisms, transition values.",
+            "type": "string",
+            "minLength": 1
           }
         }
       }

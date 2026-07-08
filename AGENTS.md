@@ -1,7 +1,11 @@
 # clone-vite — Agent Source of Truth
 
-`AGENTS.md` is the authoritative project context for supported coding agents. The
-canonical `/clone-website` workflow lives in `.claude/skills/clone-website/SKILL.md`.
+`AGENTS.md` is the authoritative project context for supported coding agents.
+
+**Product statement:** `clone-vite` reverse-engineers websites as Vite + React +
+TypeScript apps using an evidence-driven workflow and AI agents.
+
+The canonical `/clone-website` workflow lives in `.claude/skills/clone-website/SKILL.md`.
 `tooling/agent-targets.json` is the authoritative list of generated platform files.
 Never edit a generated platform file directly.
 
@@ -59,6 +63,16 @@ pnpm validate-artifacts -- docs/research/<hostname>
 
 ---
 
+## File Ownership Contract
+
+| Kind | Examples | Rule |
+|---|---|---|
+| **Canonical** | `AGENTS.md`, `.claude/skills/clone-website/SKILL.md`, `tooling/agent-targets.json`, `contracts/*.schema.json`, all `scripts/` | Edit directly; never overwrite with sync |
+| **Generated** | All files rendered by `pnpm sync` into agent platform directories | Never edit directly; change the canonical source then re-sync |
+| **Runtime artifacts** | `docs/research/<hostname>/` trees, `public/` asset downloads | Created by extraction runs; not committed unless deliberately included |
+
+---
+
 ## Research Evidence Contract
 
 For every authorized target, create a dedicated directory:
@@ -73,6 +87,11 @@ docs/research/<hostname>/
     └── <component>.spec.md  # detailed human-readable builder brief
 ```
 
+**Screenshot path convention:** All screenshots are saved under
+`docs/research/<hostname>/screenshots/` and referenced by that path in both
+`run.json` and component JSON specs. No screenshots are written to
+`docs/design-references/`.
+
 - `scripts/extract-site.mjs` opens a disposable tab through a **local** Chrome
   DevTools endpoint, captures full-page desktop/tablet/mobile screenshots, discovers
   initial topology and public asset URLs, writes the baseline evidence, validates it,
@@ -81,6 +100,8 @@ docs/research/<hostname>/
   extractor. It refuses non-local DevTools endpoints and requires `--authorized`.
 - `contracts/run.schema.json` defines `run.json`.
 - `contracts/component-spec.schema.json` defines each component JSON specification.
+- `contracts/fixtures/` contains valid and invalid example artifacts for testing the
+  validator without a real extraction run.
 - `run.json` must identify an authorized target, all desktop/tablet/mobile viewports,
   screenshots, section topology, known assets, and every component JSON path.
 - Component JSON must identify its source section, target React file, screenshots,
@@ -88,7 +109,7 @@ docs/research/<hostname>/
   behavior.
 - Markdown artifacts remain required for nuanced builder context. JSON exists to block
   missing, orphaned, duplicate, or untraceable evidence before implementation.
-- The extractor’s interaction classifications are only structural. Complete the
+- The extractor's interaction classifications are only structural. Complete the
   scroll, click, hover, timed, and responsive state sweep before builder dispatch.
 - Run `pnpm validate-artifacts -- docs/research/<hostname>` before dispatching a
   builder and after changing the run or any listed component JSON file.
@@ -99,12 +120,15 @@ docs/research/<hostname>/
 
 ```text
 clone-vite/
-├── AGENTS.md                         ← universal agent context source
+├── AGENTS.md                         ← canonical agent context source
 ├── repo-map.md                       ← high-signal structural map
 ├── changelog.md                      ← append-only edit log
 ├── contracts/
 │   ├── run.schema.json               ← clone research run contract
-│   └── component-spec.schema.json    ← component builder contract
+│   ├── component-spec.schema.json    ← component builder contract
+│   └── fixtures/
+│       ├── run.valid.json            ← passing run.json fixture
+│       └── run.invalid.json          ← failing run.json fixture
 ├── tooling/
 │   └── agent-targets.json            ← generated-file target manifest
 ├── index.html                        ← Vite entry HTML
@@ -119,6 +143,7 @@ clone-vite/
 ├── public/                           ← static assets populated during clone
 ├── docs/research/                    ← per-target evidence directories
 ├── .claude/skills/clone-website/SKILL.md
+├── .github/workflows/ci.yml          ← CI: install + check + verify-generated
 └── scripts/
     ├── extract-site.mjs              ← Chrome DevTools baseline extractor
     ├── sync-agent-rules.sh           ← compatibility rule-sync entry point
@@ -158,6 +183,9 @@ clone-vite/
 6. **Merge orchestrator resolves conflicts.** The orchestrator owns final assembly
    and visual-diff QA.
 7. **Asset fidelity.** Download target images, fonts, and icons before component work.
+8. **Merge safety.** After merging any builder worktree, run `pnpm exec tsc --noEmit`
+   and `pnpm build` before merging the next. A broken build must be fixed immediately
+   and never left compounding across merges.
 
 ---
 
