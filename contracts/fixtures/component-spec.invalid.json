@@ -1,0 +1,40 @@
+{
+  "_comment": "INVALID FIXTURE — intentionally broken to exercise validate-artifacts.mjs error paths.",
+  "_errors": [
+    "Missing required field: schemaVersion",
+    "targetFile uses a path outside src/components/ (must match ^src/components/[A-Za-z0-9/_-]+\\.tsx$)",
+    "screenshotPaths[0] uses the stale docs/design-references/ prefix (must be docs/research/<hostname>/screenshots/)",
+    "interactionModel value 'hover-driven' is not in the allowed enum",
+    "computedStyles is an empty object (minProperties: 1 violated)",
+    "states[0] is missing required field: implementation"
+  ],
+  "id": "hero",
+  "sourceSectionId": "hero",
+  "targetFile": "components/Hero.tsx",
+  "screenshotPaths": [
+    "docs/design-references/example.com/hero-desktop.png"
+  ],
+  "interactionModel": "hover-driven",
+  "dom": {
+    "summary": "Full-viewport hero section with headline, sub-copy, and CTA pair."
+  },
+  "computedStyles": {},
+  "states": [
+    {
+      "name": "cta-hover",
+      "trigger": "mouseenter on primary CTA button",
+      "before": { "background": "#0066cc" },
+      "after": { "background": "#0052a3" },
+      "transition": "background 0.18s ease"
+    }
+  ],
+  "assets": [],
+  "textContent": [
+    "Build faster. Ship smarter."
+  ],
+  "responsive": {
+    "desktop": "Two-column layout, text left, illustration right.",
+    "tablet": "Single column, illustration below text.",
+    "mobile": "Single column, illustration hidden."
+  }
+}

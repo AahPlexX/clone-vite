@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "1.0",
+  "id": "nav",
+  "sourceSectionId": "nav",
+  "targetFile": "src/components/Nav.tsx",
+  "screenshotPaths": [
+    "docs/research/example.com/screenshots/desktop-nav-default.png",
+    "docs/research/example.com/screenshots/desktop-nav-scrolled.png",
+    "docs/research/example.com/screenshots/mobile-nav-open.png"
+  ],
+  "interactionModel": "scroll-driven",
+  "stateCapture": "complete",
+  "responsiveBreakpoints": [768, 1024],
+  "dom": {
+    "summary": "Fixed header containing logo, nav links, and CTA button. Collapses to hamburger below 768px.",
+    "selector": "header.site-nav"
+  },
+  "computedStyles": {
+    "header.site-nav": {
+      "position": "fixed",
+      "top": "0px",
+      "left": "0px",
+      "width": "100%",
+      "height": "72px",
+      "background": "rgba(255,255,255,0)",
+      "transition": "height 0.3s ease, background 0.3s ease, box-shadow 0.3s ease",
+      "z-index": "100"
+    },
+    "header.site-nav a": {
+      "font-size": "14px",
+      "font-weight": "500",
+      "color": "#1a1a1a",
+      "text-decoration": "none"
+    }
+  },
+  "states": [
+    {
+      "name": "scrolled",
+      "trigger": "window.scrollY > 60",
+      "before": {
+        "height": "72px",
+        "background": "rgba(255,255,255,0)",
+        "box-shadow": "none"
+      },
+      "after": {
+        "height": "56px",
+        "background": "rgba(255,255,255,0.96)",
+        "box-shadow": "0 1px 8px rgba(0,0,0,0.08)"
+      },
+      "transition": "height 0.3s ease, background 0.3s ease, box-shadow 0.3s ease",
+      "implementation": "Add scroll event listener; toggle class 'scrolled' at 60px threshold. Class drives CSS transitions."
+    },
+    {
+      "name": "mobile-open",
+      "trigger": "hamburger button click",
+      "before": {
+        "max-height": "0",
+        "opacity": "0",
+        "pointer-events": "none"
+      },
+      "after": {
+        "max-height": "320px",
+        "opacity": "1",
+        "pointer-events": "auto"
+      },
+      "transition": "max-height 0.25s ease, opacity 0.2s ease",
+      "implementation": "Toggle aria-expanded on button; toggle class 'nav-open' on header. CSS transitions on mobile drawer."
+    }
+  ],
+  "assets": [
+    {
+      "localPath": "public/images/logo.svg",
+      "purpose": "Site wordmark displayed in nav header left"
+    }
+  ],
+  "textContent": [
+    "Features",
+    "Pricing",
+    "Docs",
+    "Get started"
+  ],
+  "responsive": {
+    "desktop": "Full horizontal nav bar; logo left, links center, CTA right. Height 72px default, 56px scrolled.",
+    "tablet": "Logo left, links hidden, hamburger right at 768px. Drawer slides down on open.",
+    "mobile": "Same as tablet. Drawer full-width stacked links at 390px."
+  }
+}
