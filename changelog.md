@@ -5,6 +5,60 @@ Format: `[YYYY-MM-DD] type: description`
 
 ---
 
+## [2026-07-08] feat(wave-1-completion): component-spec fixtures and shared TS content model
+
+### Reconciliation note
+Full live reconnaissance pass confirmed that all Wave 1 items 1–5 (product wording,
+file ownership contract, path convention unification, schema hardening, run.json
+fixtures) and items 8–9 (CI pipeline, starter scaffold foundation) were already
+deployed to the repository before this session began. No edits to those files were
+required. This entry records the remaining Wave 1 completion work: component-spec
+fixtures (item 6 completion) and the shared TypeScript content model (P1 item 12
+foundation).
+
+### Added — component-spec fixtures (P0 item 6 completion)
+- `contracts/fixtures/component-spec.valid.json` — a fully-passing component spec
+  fixture that exercises every required field in `component-spec.schema.json` plus
+  all optional fields (`stateCapture`, `responsiveBreakpoints`). The `states` array
+  exercises two full state-diff entries (scrolled header, mobile drawer open) with
+  `before`/`after`/`transition`/`implementation` shapes that will serve as the
+  reference model for the style-diff helper. The `screenshotPaths` array uses the
+  canonical `docs/research/example.com/screenshots/` prefix.
+- `contracts/fixtures/component-spec.invalid.json` — an intentionally broken component
+  spec fixture that violates six distinct schema rules, each documented inline as
+  `_errors`:
+  1. Missing required field `schemaVersion`
+  2. `targetFile` outside `src/components/` (wrong prefix)
+  3. `screenshotPaths[0]` uses the stale `docs/design-references/` prefix
+  4. `interactionModel` value `hover-driven` is not in the allowed enum
+  5. `computedStyles` is empty (violates `minProperties: 1`)
+  6. `states[0]` missing required field `implementation`
+  Each violation is a distinct validator code path, giving `validate-artifacts.mjs`
+  a regression target for every component-spec error class.
+
+### Added — shared TypeScript content model (P1 foundation)
+- `src/types/index.ts` — single-file typed mirror of both JSON schemas. Exports:
+  - Primitives: `InteractionModel`, `StateCapture`, `ViewportName`, `AssetKind`,
+    `RunStatus`
+  - `run.json` shapes: `Viewport`, `ScreenshotEntry`, `TopologyItem`, `AssetEntry`,
+    `RunJson` (with tuple constraint `[Viewport, Viewport, Viewport, ...Viewport[]]`
+    enforcing the schema's `minItems: 3` at the type level)
+  - Component spec shapes: `StateTransition`, `ComponentAsset`, `ComponentSpecJson`
+    (with `screenshotPaths: [string, ...string[]]` enforcing `minItems: 1`)
+  All exported; no `any`; optional fields match schema's optional fields exactly.
+  Scripts and app code must import from this file rather than re-declaring shapes.
+  Any schema change requires a corresponding update here.
+
+### Changed — repo-map.md
+- Added `contracts/fixtures/component-spec.valid.json` and
+  `contracts/fixtures/component-spec.invalid.json` to highest-centrality modules table.
+- Added `src/types/index.ts` to highest-centrality modules table with role description.
+- Added `src/types/index.ts` to Path Conventions table.
+- Added "Shared TS content model" to Present Categories.
+- Updated Active Hardening State to record Wave 1 completion and list remaining Wave 2 work.
+
+---
+
 ## [2026-07-08] feat(wave-1): product wording, path contract, schema hardening, validator fixtures, CI
 
 ### Changed — product wording (P0 item 1)
